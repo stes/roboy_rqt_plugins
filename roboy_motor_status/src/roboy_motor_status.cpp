@@ -1,0 +1,103 @@
+#include <roboy_motor_status/roboy_motor_status.hpp>
+
+RoboyMotorStatus::RoboyMotorStatus()
+        : rqt_gui_cpp::Plugin(), widget_(0) {
+    setObjectName("RoboyMotorStatus");
+
+    QObject::connect(this, SIGNAL(newData(int)), this, SLOT(plotData(int)));
+
+    for (uint motor = 0; motor < NUMBER_OF_MOTORS_PER_FPGA; motor++) {
+        ui.position_plot->addGraph();
+        ui.position_plot->graph(motor)->setPen(QPen(color_pallette[motor]));
+        ui.velocity_plot->addGraph();
+        ui.velocity_plot->graph(motor)->setPen(QPen(color_pallette[motor]));
+        ui.displacement_plot->addGraph();
+        ui.displacement_plot->graph(motor)->setPen(QPen(color_pallette[motor]));
+        ui.current_plot->addGraph();
+        ui.current_plot->graph(motor)->setPen(QPen(color_pallette[motor]));
+    }
+    ui.position_plot->xAxis->setLabel("x");
+    ui.position_plot->yAxis->setLabel("ticks");
+    ui.position_plot->replot();
+
+    ui.velocity_plot->xAxis->setLabel("x");
+    ui.velocity_plot->yAxis->setLabel("ticks/s");
+    ui.velocity_plot->replot();
+
+    ui.displacement_plot->xAxis->setLabel("x");
+    ui.displacement_plot->yAxis->setLabel("ticks");
+    ui.displacement_plot->replot();
+
+    ui.current_plot->xAxis->setLabel("x");
+    ui.current_plot->yAxis->setLabel("mA");
+    ui.current_plot->replot();
+}
+
+void RoboyMotorStatus::initPlugin(qt_gui_cpp::PluginContext &context) {
+    // access standalone command line arguments
+    QStringList argv = context.argv();
+    // create QWidget
+    widget_ = new QWidget();
+    // extend the widget with all attributes and children from UI file
+    ui.setupUi(widget_);
+    // add widget to the user interface
+    context.addWidget(widget_);
+}
+
+void RoboyMotorStatus::shutdownPlugin() {
+    // unregister all publishers here
+}
+
+void RoboyMotorStatus::saveSettings(qt_gui_cpp::Settings &plugin_settings,
+                                    qt_gui_cpp::Settings &instance_settings) const {
+    // instance_settings.setValue(k, v)
+}
+
+void RoboyMotorStatus::restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
+                                       const qt_gui_cpp::Settings &instance_settings) {
+    // v = instance_settings.value(k)
+}
+
+void RoboyMotorStatus::MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
+    ROS_INFO_THROTTLE(5, "receiving motor status");
+    time.push_back(counter++);
+    for (uint motor = 0; motor < NUMBER_OF_MOTORS_PER_FPGA; motor++) {
+        motorData[msg->id][motor][0].push_back(msg->position[motor]);
+        motorData[msg->id][motor][1].push_back(msg->velocity[motor]);
+        motorData[msg->id][motor][2].push_back(msg->displacement[motor]);
+        motorData[msg->id][motor][3].push_back(msg->pwmRef[motor]);
+        if (motorData[msg->id][motor][0].size() > samples_per_plot) {
+            motorData[msg->id][motor][0].pop_front();
+            motorData[msg->id][motor][1].pop_front();
+            motorData[msg->id][motor][2].pop_front();
+            motorData[msg->id][motor][3].pop_front();
+        }
+    }
+}
+
+void RoboyMotorStatus::plotData(int type) {
+    for (uint motor = 0; motor < NUMBER_OF_MOTORS_PER_FPGA; motor++) {
+        ui.position_plot->graph(motor)->setData(time, motorData[0][motor][0]);
+        ui.velocity_plot->graph(motor)->setData(time, motorData[0][motor][1]);
+        ui.displacement_plot->graph(motor)->setData(time, motorData[0][motor][2]);
+        ui.current_plot->graph(motor)->setData(time, motorData[0][motor][3]);
+
+        if (motor == 0) {
+            ui.position_plot->graph(motor)->rescaleAxes();
+            ui.velocity_plot->graph(motor)->rescaleAxes();
+            ui.displacement_plot->graph(motor)->rescaleAxes();
+            ui.current_plot->graph(motor)->rescaleAxes();
+        } else {
+            ui.position_plot->graph(motor)->rescaleAxes(true);
+            ui.velocity_plot->graph(motor)->rescaleAxes(true);
+            ui.displacement_plot->graph(motor)->rescaleAxes(true);
+            ui.current_plot->graph(motor)->rescaleAxes(true);
+        }
+    }
+    ui.position_plot->replot();
+    ui.velocity_plot->replot();
+    ui.displacement_plot->replot();
+    ui.current_plot->replot();
+}
+
+PLUGINLIB_DECLARE_CLASS(roboy_motor_status, RoboyMotorStatus, RoboyMotorStatus, rqt_gui_cpp::Plugin)
