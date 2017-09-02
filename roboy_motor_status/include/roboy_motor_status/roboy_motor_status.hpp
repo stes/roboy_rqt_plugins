@@ -31,6 +31,7 @@ public:
     virtual void restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
                                  const qt_gui_cpp::Settings &instance_settings);
 
+public Q_SLOTS:
     void plotData();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);

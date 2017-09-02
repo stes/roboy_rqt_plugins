@@ -5,10 +5,13 @@
 #include <ros/ros.h>
 #include <rqt_gui_cpp/plugin.h>
 #include <roboy_motor_command/ui_roboy_motor_command.h>
+#include <roboy_communication_middleware/ControlMode.h>
 #include <roboy_communication_middleware/MotorCommand.h>
 #include <QWidget>
 #include <pluginlib/class_list_macros.h>
 #include <QStringList>
+#include <QSlider>
+#include <QLineEdit>
 #include <map>
 
 #endif
@@ -33,20 +36,30 @@ public:
 
     virtual void restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
                                  const qt_gui_cpp::Settings &instance_settings);
-private:
+public Q_SLOTS:
     void stopButtonClicked();
     void stopButtonAllClicked();
+    void setPointChanged(int);
+    void setPointAllChanged(int);
+    void fpgaChanged(int);
+    void scaleChanged();
+    void scaleChangedAll();
+    void controlModeChanged();
 private:
     Ui::RoboyMotorCommand ui;
     QWidget *widget_;
     ros::NodeHandlePtr nh;
     ros::Publisher motorCommand;
-    ros::ServiceClient motorConfig;
+    ros::ServiceClient motorControl;
 private:
     map<int,bool> stopButton;
     map<int,map<int,int>> scale;
     map<int,map<int,int>> setpoint;
-    map<int, Q
+    map<int,int> control_mode;
+    QList<QSlider*> setpoint_slider_widget;
+    QList<QLineEdit*> setpoint_widget;
+    QList<QLineEdit*> scale_widget;
     enum MOTOR{ MOTOR0, MOTOR1, MOTOR2, MOTOR3, MOTOR4, MOTOR5, MOTOR6, MOTOR7,
         MOTOR8, MOTOR9, MOTOR10, MOTOR11, MOTOR12, MOTOR13, MOTORALL};
+    enum CONTROL_MODE{POSITION, VELOCITY, DISPLACEMENT};
 };
