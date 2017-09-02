@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
-    <height>433</height>
+    <width>562</width>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>0</y>
+     <y>30</y>
      <width>281</width>
      <height>221</height>
     </rect>
@@ -27,7 +27,7 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>0</y>
+     <y>30</y>
      <width>281</width>
      <height>221</height>
     </rect>
@@ -37,7 +37,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>220</y>
+     <y>250</y>
      <width>281</width>
      <height>221</height>
     </rect>
@@ -47,10 +47,57 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>220</y>
+     <y>250</y>
      <width>281</width>
      <height>221</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="fpga">
+   <property name="geometry">
+    <rect>
+     <x>518</x>
+     <y>0</y>
+     <width>41</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>5</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>0</y>
+     <width>41</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>fpga</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>321</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <italic>false</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>MOTOR STATUS</string>
    </property>
   </widget>
  </widget>

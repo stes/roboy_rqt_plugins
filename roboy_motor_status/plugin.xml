@@ -4,15 +4,13 @@
       Motor status plugin
     </description>
     <qtgui>
-      <!-- optional grouping...
       <group>
-        <label>Group</label>
+        <label>Roboy</label>
       </group>
       <group>
-        <label>Subgroup</label>
+        <label>middleware</label>
       </group>
-      -->
-      <label>yeah baby</label>
+      <label>roboy motor status</label>
       <icon type="theme">system-help</icon>
       <statustip>Great user interface to provide real value.</statustip>
     </qtgui>

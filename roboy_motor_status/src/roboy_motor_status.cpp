@@ -3,8 +3,17 @@
 RoboyMotorStatus::RoboyMotorStatus()
         : rqt_gui_cpp::Plugin(), widget_(0) {
     setObjectName("RoboyMotorStatus");
+}
 
-    QObject::connect(this, SIGNAL(newData(int)), this, SLOT(plotData(int)));
+void RoboyMotorStatus::initPlugin(qt_gui_cpp::PluginContext &context) {
+    // access standalone command line arguments
+    QStringList argv = context.argv();
+    // create QWidget
+    widget_ = new QWidget();
+    // extend the widget with all attributes and children from UI file
+    ui.setupUi(widget_);
+    // add widget to the user interface
+    context.addWidget(widget_);
 
     for (uint motor = 0; motor < NUMBER_OF_MOTORS_PER_FPGA; motor++) {
         ui.position_plot->addGraph();
@@ -31,21 +40,20 @@ RoboyMotorStatus::RoboyMotorStatus()
     ui.current_plot->xAxis->setLabel("x");
     ui.current_plot->yAxis->setLabel("mA");
     ui.current_plot->replot();
-}
 
-void RoboyMotorStatus::initPlugin(qt_gui_cpp::PluginContext &context) {
-    // access standalone command line arguments
-    QStringList argv = context.argv();
-    // create QWidget
-    widget_ = new QWidget();
-    // extend the widget with all attributes and children from UI file
-    ui.setupUi(widget_);
-    // add widget to the user interface
-    context.addWidget(widget_);
+    nh = ros::NodeHandlePtr(new ros::NodeHandle);
+    if (!ros::isInitialized()) {
+        int argc = 0;
+        char **argv = NULL;
+        ros::init(argc, argv, "motor_status_rqt_plugin");
+    }
+
+    motorStatus = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyMotorStatus::MotorStatus, this);
+    QObject::connect(this, SIGNAL(newData()), this, SLOT(plotData()));
 }
 
 void RoboyMotorStatus::shutdownPlugin() {
-    // unregister all publishers here
+    motorStatus.shutdown();
 }
 
 void RoboyMotorStatus::saveSettings(qt_gui_cpp::Settings &plugin_settings,
@@ -73,14 +81,19 @@ void RoboyMotorStatus::MotorStatus(const roboy_communication_middleware::MotorSt
             motorData[msg->id][motor][3].pop_front();
         }
     }
+    if (time.size() > samples_per_plot)
+        time.pop_front();
+
+    if ((counter++) % 3 == 0)
+            Q_EMIT newData();
 }
 
-void RoboyMotorStatus::plotData(int type) {
+void RoboyMotorStatus::plotData() {
     for (uint motor = 0; motor < NUMBER_OF_MOTORS_PER_FPGA; motor++) {
-        ui.position_plot->graph(motor)->setData(time, motorData[0][motor][0]);
-        ui.velocity_plot->graph(motor)->setData(time, motorData[0][motor][1]);
-        ui.displacement_plot->graph(motor)->setData(time, motorData[0][motor][2]);
-        ui.current_plot->graph(motor)->setData(time, motorData[0][motor][3]);
+        ui.position_plot->graph(motor)->setData(time, motorData[ui.fpga->value()][motor][0]);
+        ui.velocity_plot->graph(motor)->setData(time, motorData[ui.fpga->value()][motor][1]);
+        ui.displacement_plot->graph(motor)->setData(time, motorData[ui.fpga->value()][motor][2]);
+        ui.current_plot->graph(motor)->setData(time, motorData[ui.fpga->value()][motor][3]);
 
         if (motor == 0) {
             ui.position_plot->graph(motor)->rescaleAxes();

@@ -31,11 +31,11 @@ public:
     virtual void restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
                                  const qt_gui_cpp::Settings &instance_settings);
 
-    void plotData(int id);
+    void plotData();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
 Q_SIGNALS:
-    void newData(int id);
+    void newData();
 private:
     Ui::RoboyMotorStatus ui;
     QWidget *widget_;
