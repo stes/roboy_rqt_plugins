@@ -53,11 +53,10 @@ void RoboyMotorCommand::initPlugin(qt_gui_cpp::PluginContext &context) {
     }
 
     motorCommand = nh->advertise<roboy_communication_middleware::MotorCommand>("/roboy/middleware/MotorCommand", 1);
-    motorControl = nh->serviceClient<roboy_communication_middleware::ControlMode>("/roboy/middleware/MotorControl");
+    motorControl = nh->serviceClient<roboy_communication_middleware::ControlMode>("/roboy/middleware/ControlMode");
+    emergencyStop = nh->serviceClient<std_srvs::SetBool>("/roboy/middleware/EmergencyStop");
 
-    ui.stop_button->setStyleSheet("background-color: green");
     ui.stop_button_all->setStyleSheet("background-color: green");
-    QObject::connect(ui.stop_button, SIGNAL(clicked()), this, SLOT(stopButtonClicked()));
     QObject::connect(ui.stop_button_all, SIGNAL(clicked()), this, SLOT(stopButtonAllClicked()));
 
     for(uint motor = 0; motor<NUMBER_OF_MOTORS_PER_FPGA; motor++){
@@ -73,6 +72,8 @@ void RoboyMotorCommand::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(scale_widget.at(NUMBER_OF_MOTORS_PER_FPGA), SIGNAL(editingFinished()), this, SLOT(scaleChangedAll()));
 
     QObject::connect(ui.pos, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
+    QObject::connect(ui.vel, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
+    QObject::connect(ui.dis, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
 }
 
 void RoboyMotorCommand::shutdownPlugin() {
@@ -89,27 +90,16 @@ void RoboyMotorCommand::restoreSettings(const qt_gui_cpp::Settings &plugin_setti
     // v = instance_settings.value(k)
 }
 
-void RoboyMotorCommand::stopButtonClicked(){
-    if(ui.stop_button->isChecked()) {
-        ui.stop_button->setStyleSheet("background-color: red");
-        stopButton[ui.fpga->value()] = true;
-    }else {
-        ui.stop_button->setStyleSheet("background-color: green");
-        stopButton[ui.fpga->value()] = false;
-    }
-}
-
 void RoboyMotorCommand::stopButtonAllClicked(){
+    std_srvs::SetBool msg;
     if(ui.stop_button_all->isChecked()) {
         ui.stop_button_all->setStyleSheet("background-color: red");
-        for(uint fpga = 0; fpga<NUMBER_OF_FPGAS; fpga++) {
-            stopButton[fpga]= true;
-        }
+        msg.request.data = 1;
+        emergencyStop.call(msg);
     }else {
         ui.stop_button_all->setStyleSheet("background-color: green");
-        for(uint fpga = 0; fpga<NUMBER_OF_FPGAS; fpga++) {
-            stopButton[fpga]= false;
-        }
+        msg.request.data = 0;
+        emergencyStop.call(msg);
     }
 }
 
@@ -170,15 +160,20 @@ void RoboyMotorCommand::scaleChangedAll(){
 }
 
 void RoboyMotorCommand::controlModeChanged(){
-    if(ui.pos->isChecked())
-        control_mode[ui.fpga->value()] = POSITION;
-    else if(ui.vel->isChecked())
-        control_mode[ui.fpga->value()] = VELOCITY;
-    else if(ui.dis->isChecked())
-        control_mode[ui.fpga->value()] = DISPLACEMENT;
-
     roboy_communication_middleware::ControlMode msg;
-    msg.request.control_mode = control_mode[ui.fpga->value()];
+    if(ui.pos->isChecked()) {
+        control_mode[ui.fpga->value()] = POSITION;
+        msg.request.control_mode = POSITION;
+    }
+    if(ui.vel->isChecked()) {
+        control_mode[ui.fpga->value()] = VELOCITY;
+        msg.request.control_mode = VELOCITY;
+    }
+    if(ui.dis->isChecked()) {
+        control_mode[ui.fpga->value()] = DISPLACEMENT;
+        msg.request.control_mode = DISPLACEMENT;
+    }
+
     bool ok;
     msg.request.setPoint = setpoint_slider_widget[NUMBER_OF_MOTORS_PER_FPGA]->value()
                            * scale_widget[NUMBER_OF_MOTORS_PER_FPGA]->text().toInt(&ok);

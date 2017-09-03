@@ -13,6 +13,8 @@
 #include <QSlider>
 #include <QLineEdit>
 #include <map>
+#include <common_utilities/CommonDefinitions.h>
+#include <std_srvs/SetBool.h>
 
 #endif
 
@@ -37,7 +39,6 @@ public:
     virtual void restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
                                  const qt_gui_cpp::Settings &instance_settings);
 public Q_SLOTS:
-    void stopButtonClicked();
     void stopButtonAllClicked();
     void setPointChanged(int);
     void setPointAllChanged(int);
@@ -50,7 +51,7 @@ private:
     QWidget *widget_;
     ros::NodeHandlePtr nh;
     ros::Publisher motorCommand;
-    ros::ServiceClient motorControl;
+    ros::ServiceClient motorControl, emergencyStop;
 private:
     map<int,bool> stopButton;
     map<int,map<int,int>> scale;
