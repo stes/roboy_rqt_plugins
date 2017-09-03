@@ -96,10 +96,16 @@ void RoboyMotorCommand::stopButtonAllClicked(){
         ui.stop_button_all->setStyleSheet("background-color: red");
         msg.request.data = 1;
         emergencyStop.call(msg);
+        ui.pos->setEnabled(false);
+        ui.vel->setEnabled(false);
+        ui.dis->setEnabled(false);
     }else {
         ui.stop_button_all->setStyleSheet("background-color: green");
         msg.request.data = 0;
         emergencyStop.call(msg);
+        ui.pos->setEnabled(true);
+        ui.vel->setEnabled(true);
+        ui.dis->setEnabled(true);
     }
 }
 
