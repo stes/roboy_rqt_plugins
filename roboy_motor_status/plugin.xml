@@ -7,11 +7,7 @@
       <group>
         <label>Roboy</label>
       </group>
-      <group>
-        <label>middleware</label>
-      </group>
       <label>roboy motor status</label>
-      <icon type="theme">system-help</icon>
       <statustip>Great user interface to provide real value.</statustip>
     </qtgui>
   </class>

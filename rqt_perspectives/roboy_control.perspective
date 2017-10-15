@@ -1,0 +1,106 @@
+{
+  "keys": {}, 
+  "groups": {
+    "pluginmanager": {
+      "keys": {
+        "running-plugins": {
+          "type": "repr", 
+          "repr": "{u'RoboyMotorStatus': [1], u'RoboyDarkRoom': [1], u'RoboyMotorCommand': [1]}"
+        }
+      }, 
+      "groups": {
+        "plugin__RoboyDarkRoom__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__RoboyDarkRoom": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }, 
+                "dock_widget_title": {
+                  "type": "repr", 
+                  "repr": "u'Form'"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__RoboyMotorCommand__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__RoboyMotorCommand": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }, 
+                "dock_widget_title": {
+                  "type": "repr", 
+                  "repr": "u'Form'"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }, 
+        "plugin__RoboyMotorStatus__1": {
+          "keys": {}, 
+          "groups": {
+            "dock_widget__RoboyMotorStatus": {
+              "keys": {
+                "dockable": {
+                  "type": "repr", 
+                  "repr": "True"
+                }, 
+                "parent": {
+                  "type": "repr", 
+                  "repr": "None"
+                }, 
+                "dock_widget_title": {
+                  "type": "repr", 
+                  "repr": "u'Form'"
+                }
+              }, 
+              "groups": {}
+            }
+          }
+        }
+      }
+    }, 
+    "mainwindow": {
+      "keys": {
+        "geometry": {
+          "type": "repr(QByteArray.hex)", 
+          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb000200000000004e000000c6000006c7000003f00000004e000000e2000006c7000003f000000000000000000780')", 
+          "pretty-print": "     N       N           "
+        }, 
+        "state": {
+          "type": "repr(QByteArray.hex)", 
+          "repr(QByteArray.hex)": "QtCore.QByteArray('000000ff00000000fd00000001000000030000067a000002f9fc0100000003fb0000003e0052006f0062006f0079004400610072006b0052006f006f006d005f005f0031005f005f0052006f0062006f0079004400610072006b0052006f006f006d01000000000000010e0000009c00fffffffb0000004e0052006f0062006f0079004d006f0074006f00720043006f006d006d0061006e0064005f005f0031005f005f0052006f0062006f0079004d006f0074006f00720043006f006d006d0061006e006401000001140000024a0000009c00fffffffb0000004a0052006f0062006f0079004d006f0074006f0072005300740061007400750073005f005f0031005f005f0052006f0062006f0079004d006f0074006f00720053007400610074007500730100000364000003160000009c00ffffff0000067a0000000000000004000000040000000800000008fc00000001000000030000000100000036004d0069006e0069006d0069007a006500640044006f0063006b00570069006400670065007400730054006f006f006c0062006100720000000000ffffffff0000000000000000')", 
+          "pretty-print": "                 >RoboyDarkRoom__1__RoboyDarkRoom          NRoboyMotorCommand__1__RoboyMotorCommand          JRoboyMotorStatus__1__RoboyMotorStatus                            6MinimizedDockWidgetsToolbar        "
+        }
+      }, 
+      "groups": {
+        "toolbar_areas": {
+          "keys": {
+            "MinimizedDockWidgetsToolbar": {
+              "type": "repr", 
+              "repr": "8"
+            }
+          }, 
+          "groups": {}
+        }
+      }
+    }
+  }
+}
