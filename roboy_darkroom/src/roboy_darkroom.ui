@@ -6,23 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>668</height>
+    <width>282</width>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QCustomPlot" name="active_sensors" native="true">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>550</y>
-     <width>261</width>
-     <height>111</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="header">
    <property name="geometry">
     <rect>
@@ -47,7 +37,7 @@
   <widget class="QPushButton" name="reset_lighthouse_poses">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>270</y>
      <width>261</width>
      <height>27</height>
@@ -60,7 +50,7 @@
   <widget class="QPushButton" name="triangulate">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>30</y>
      <width>261</width>
      <height>27</height>
@@ -79,7 +69,7 @@
   <widget class="QPushButton" name="pose_correction_sensor_cloud">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>150</y>
      <width>261</width>
      <height>27</height>
@@ -92,7 +82,7 @@
   <widget class="QPushButton" name="pose_correction_particle_filter">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>180</y>
      <width>261</width>
      <height>27</height>
@@ -105,7 +95,7 @@
   <widget class="QPushButton" name="position_estimation_relativ_sensor_distances">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>210</y>
      <width>261</width>
      <height>27</height>
@@ -118,7 +108,7 @@
   <widget class="QPushButton" name="show_rays">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>60</y>
      <width>261</width>
      <height>27</height>
@@ -134,7 +124,7 @@
   <widget class="QPushButton" name="show_distances">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>90</y>
      <width>261</width>
      <height>27</height>
@@ -150,8 +140,8 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>390</y>
+     <x>20</x>
+     <y>400</y>
      <width>251</width>
      <height>151</height>
     </rect>
@@ -173,7 +163,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -216,7 +206,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -237,7 +227,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -258,7 +248,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -279,7 +269,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -300,7 +290,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -321,7 +311,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>10</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -595,7 +585,7 @@
   <widget class="QPushButton" name="calibrate_relative_distances">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>240</y>
      <width>261</width>
      <height>27</height>
@@ -608,7 +598,7 @@
   <widget class="QPushButton" name="switch_lighthouses">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>120</y>
      <width>261</width>
      <height>27</height>
@@ -624,7 +614,7 @@
   <widget class="QPushButton" name="record">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>300</y>
      <width>261</width>
      <height>27</height>
@@ -637,15 +627,59 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QPushButton" name="connect_roboy">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>330</y>
+     <width>261</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>connect Roboy</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="connect_object">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>360</y>
+     <width>71</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>connect</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="broadcast_ip">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>360</y>
+     <width>131</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>192.168.0.255</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="broadcast_port">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>360</y>
+     <width>61</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>8000</string>
+   </property>
+  </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

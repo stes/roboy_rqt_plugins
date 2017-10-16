@@ -37,6 +37,8 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     text["lighthouse2_roll"] = widget_->findChild<QLineEdit *>("lighthouse2_roll_text");
     text["lighthouse2_pitch"] = widget_->findChild<QLineEdit *>("lighthouse2_pitch_text");
     text["lighthouse2_yaw"] = widget_->findChild<QLineEdit *>("lighthouse2_yaw_text");
+    text["broadcast_ip"] = widget_->findChild<QLineEdit *>("broadcast_ip");
+    text["broadcast_port"] = widget_->findChild<QLineEdit *>("broadcast_port");
 
     slider["lighthouse2_x"] = widget_->findChild<QSlider *>("lighthouse2_x");
     slider["lighthouse2_y"] = widget_->findChild<QSlider *>("lighthouse2_y");
@@ -55,6 +57,8 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     button["switch_lighthouses"] = widget_->findChild<QPushButton *>("switch_lighthouses");
     button["calibrate_relative_distances"] = widget_->findChild<QPushButton *>("calibrate_relative_distances");
     button["record"] = widget_->findChild<QPushButton *>("record");
+    button["connect_roboy"] = widget_->findChild<QPushButton *>("connect_roboy");
+    button["connect_object"] = widget_->findChild<QPushButton *>("connect_object");
 
     QObject::connect(text["lighthouse2_x"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
     QObject::connect(text["lighthouse2_y"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
@@ -80,6 +84,8 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(button["calibrate_relative_distances"], SIGNAL(clicked()), this, SLOT(startCalibrateRelativeSensorDistances()));
     QObject::connect(button["switch_lighthouses"], SIGNAL(clicked()), this, SLOT(switchLighthouses()));
     QObject::connect(button["record"], SIGNAL(clicked()), this, SLOT(record()));
+    QObject::connect(button["connect_roboy"], SIGNAL(clicked()), this, SLOT(connectRoboy()));
+    QObject::connect(button["connect_object"], SIGNAL(clicked()), this, SLOT(connectObject()));
 
     nh = ros::NodeHandlePtr(new ros::NodeHandle);
     if (!ros::isInitialized()) {
@@ -101,11 +107,6 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
         transform_thread->detach();
     }
 
-    TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
-    newObject->connectRoboy();
-    trackedObjects[object_counter] = newObject;
-    object_counter++;
-
     button["triangulate"]->click();
 }
 
@@ -122,6 +123,22 @@ void RoboyDarkRoom::restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
     // v = instance_settings.value(k)
 }
 
+
+void RoboyDarkRoom::connectRoboy(){
+    TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
+    newObject->connectRoboy();
+    trackedObjects[object_counter] = newObject;
+    object_counter++;
+}
+
+void RoboyDarkRoom::connectObject(){
+    TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
+    bool ok;
+    newObject->connectObject(text["broadcast_ip"]->text().toStdString().c_str(), text["broadcast_port"]->text().toInt(&ok));
+    trackedObjects[object_counter] = newObject;
+    object_counter++;
+}
+
 void RoboyDarkRoom::resetLighthousePoses() {
     text["lighthouse2_x"]->setText(QString::number(slider["lighthouse2_x"]->value()/100.0*5.0));
     text["lighthouse2_y"]->setText(QString::number(slider["lighthouse2_y"]->value()/100.0*5.0));
@@ -129,7 +146,6 @@ void RoboyDarkRoom::resetLighthousePoses() {
     text["lighthouse2_roll"]->setText(QString::number(slider["lighthouse2_roll"]->value()));
     text["lighthouse2_pitch"]->setText(QString::number(slider["lighthouse2_pitch"]->value()));
     text["lighthouse2_yaw"]->setText(QString::number(slider["lighthouse2_yaw"]->value()));
-
 
     tf_world.setOrigin(tf::Vector3(0, 0, 0));
     tf::Quaternion quat;

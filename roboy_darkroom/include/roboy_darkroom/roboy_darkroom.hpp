@@ -37,6 +37,15 @@ public:
 
 public Q_SLOTS:
     /**
+     * connect Roboy via ROS
+     */
+    void connectRoboy();
+
+    /**
+     * connect Object via UDP socket
+     */
+    void connectObject();
+    /**
          * Resets the lighthouse poses to inital values
          */
     void resetLighthousePoses();
