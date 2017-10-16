@@ -59,6 +59,7 @@ private:
     ros::NodeHandlePtr nh;
     boost::shared_ptr<ros::AsyncSpinner> spinner;
     ros::Publisher motorCommand;
+    ros::Subscriber jointStatus;
     map<string,QLineEdit*> text;
     map<string,QPushButton*> button;
     map<string,QSlider*> slider;

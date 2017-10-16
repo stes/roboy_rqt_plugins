@@ -44,6 +44,36 @@ void PaBiRoboyJointControl::initPlugin(qt_gui_cpp::PluginContext &context) {
     button["activate"] = widget_->findChild<QPushButton *>("activate");
     button["activate"]->setStyleSheet("background-color: green");
 
+    // add graphs to plot for setpoint an current angle
+    ui.joint0->addGraph();
+    ui.joint0->graph(0)->setPen(QPen(color_pallette[0]));
+    ui.joint0->addGraph();
+    ui.joint0->graph(1)->setPen(QPen(color_pallette[1]));
+    ui.joint0->yAxis->setLabel("degrees");
+    ui.joint0->yAxis->setRange(-360, 360);
+
+    ui.joint1->addGraph();
+    ui.joint1->graph(0)->setPen(QPen(color_pallette[0]));
+    ui.joint1->addGraph();
+    ui.joint1->graph(1)->setPen(QPen(color_pallette[1]));
+    ui.joint1->yAxis->setLabel("degrees");
+    ui.joint1->yAxis->setRange(-360, 360);
+
+    ui.joint2->addGraph();
+    ui.joint2->graph(0)->setPen(QPen(color_pallette[0]));
+    ui.joint2->addGraph();
+    ui.joint2->graph(1)->setPen(QPen(color_pallette[1]));
+    ui.joint2->yAxis->setLabel("degrees");
+    ui.joint2->yAxis->setRange(-360, 360);
+
+    ui.joint3->addGraph();
+    ui.joint3->graph(0)->setPen(QPen(color_pallette[0]));
+    ui.joint3->addGraph();
+    ui.joint3->graph(1)->setPen(QPen(color_pallette[1]));
+    ui.joint3->yAxis->setLabel("degrees");
+    ui.joint3->yAxis->setRange(-360, 360);
+
+    // connect slider to callback
     QObject::connect(slider["joint_setpoint_0"], SIGNAL(valueChanged(int)), this, SLOT(updateSetPointsJointControl()));
     QObject::connect(slider["joint_setpoint_1"], SIGNAL(valueChanged(int)), this, SLOT(updateSetPointsJointControl()));
     QObject::connect(slider["joint_setpoint_2"], SIGNAL(valueChanged(int)), this, SLOT(updateSetPointsJointControl()));
@@ -64,6 +94,7 @@ void PaBiRoboyJointControl::initPlugin(qt_gui_cpp::PluginContext &context) {
     spinner->start();
 
     motorCommand = nh->advertise<roboy_communication_middleware::MotorCommand>("/roboy/middleware/MotorCommand", 1);
+    jointStatus = nh->subscribe("/roboy/middleware/JointStatus", 1, &PaBiRoboyJointControl::JointStatus, this);
 
     QObject::connect(this, SIGNAL(newData()), this, SLOT(plotData()));
 }
@@ -83,7 +114,7 @@ void PaBiRoboyJointControl::restoreSettings(const qt_gui_cpp::Settings &plugin_s
 }
 
 void PaBiRoboyJointControl::JointStatus(const roboy_communication_middleware::JointStatus::ConstPtr &msg) {
-    ROS_INFO_THROTTLE(5, "receiving motor status");
+    ROS_INFO_THROTTLE(5, "receiving joint status");
     time.push_back(counter++);
 
     jointDataSetpoint[0].push_back(slider["joint_setpoint_0"]->value());
@@ -92,7 +123,7 @@ void PaBiRoboyJointControl::JointStatus(const roboy_communication_middleware::Jo
     jointDataSetpoint[3].push_back(slider["joint_setpoint_3"]->value());
 
     for (uint joint = 0; joint < NUMBER_OF_JOINTS; joint++) {
-        jointData[joint].push_back(msg->absAngles[joint]);
+        jointData[joint].push_back(msg->absAngles[joint]/4096.0*360);
         if (jointData[joint].size() > samples_per_plot) {
             jointData[joint].pop_front();
         }
@@ -103,7 +134,7 @@ void PaBiRoboyJointControl::JointStatus(const roboy_communication_middleware::Jo
     if (time.size() > samples_per_plot)
         time.pop_front();
 
-    if ((counter++) % 3 == 0)
+    if (counter % 3 == 0)
             Q_EMIT newData();
 
     if(joint_control_active)
@@ -120,6 +151,11 @@ void PaBiRoboyJointControl::plotData() {
     ui.joint1->graph(1)->setData(time, jointDataSetpoint[1]);
     ui.joint2->graph(1)->setData(time, jointDataSetpoint[2]);
     ui.joint3->graph(1)->setData(time, jointDataSetpoint[3]);
+
+    ui.joint0->xAxis->rescale();
+    ui.joint1->xAxis->rescale();
+    ui.joint2->xAxis->rescale();
+    ui.joint3->xAxis->rescale();
 
     ui.joint0->replot();
     ui.joint1->replot();
