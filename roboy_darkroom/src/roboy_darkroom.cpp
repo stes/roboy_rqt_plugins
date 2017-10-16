@@ -106,8 +106,6 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
         transform_thread = boost::shared_ptr<std::thread>(new std::thread(&RoboyDarkRoom::transformPublisher, this));
         transform_thread->detach();
     }
-
-    button["triangulate"]->click();
 }
 
 void RoboyDarkRoom::shutdownPlugin() {
