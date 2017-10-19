@@ -54,7 +54,7 @@ endif()
 #############
 
 install(TARGETS roboy_motor_command
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/roboy_rqt_plugins
         )
 
 install(FILES

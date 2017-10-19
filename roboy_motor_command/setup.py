@@ -6,7 +6,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 # fetch values from package.xml
 setup_args = generate_distutils_setup(
     packages=['roboy_motor_command'],
-    package_dir={'': 'src'},
+    package_dir={'': '../'},
     requires=['std_msgs', 'roscpp']
 )
 
