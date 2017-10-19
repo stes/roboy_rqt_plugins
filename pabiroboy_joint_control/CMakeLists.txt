@@ -54,9 +54,11 @@ endif()
 ## Install ##
 #############
 
-# Mark executables and/or libraries for installation
- install(TARGETS pabiroboy_joint_control
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+install(TARGETS pabiroboy_joint_control
+          LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        )
+
+install(FILES
+        package.xml
+          DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+        )

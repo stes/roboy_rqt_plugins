@@ -53,9 +53,11 @@ endif()
 ## Install ##
 #############
 
-# Mark executables and/or libraries for installation
- install(TARGETS roboy_motor_status
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+install(TARGETS roboy_motor_status
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        )
+
+install(FILES
+        package.xml
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+        )
