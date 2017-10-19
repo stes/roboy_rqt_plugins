@@ -45,6 +45,11 @@ public Q_SLOTS:
      * connect Object via UDP socket
      */
     void connectObject();
+
+    /**
+     * Clears all visualizations in rviz
+     */
+    void clearAll();
     /**
          * Resets the lighthouse poses to inital values
          */

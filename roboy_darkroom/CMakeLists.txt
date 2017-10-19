@@ -46,8 +46,6 @@ include_directories(
         mavmap/src
 )
 
-message(STATUS "i'm mister misics: ${catkin_INCLUDE_DIRS}")
-
 add_library( roboy_darkroom src/roboy_darkroom.cpp ${roboy_darkroom_MOCS} ${roboy_darkroom_UIS_H}
         qcustomplot/qcustomplot.cpp)
 

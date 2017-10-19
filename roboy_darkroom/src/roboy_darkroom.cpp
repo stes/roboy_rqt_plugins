@@ -59,6 +59,7 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     button["record"] = widget_->findChild<QPushButton *>("record");
     button["connect_roboy"] = widget_->findChild<QPushButton *>("connect_roboy");
     button["connect_object"] = widget_->findChild<QPushButton *>("connect_object");
+    button["clear_all"] = widget_->findChild<QPushButton *>("clear_all");
 
     QObject::connect(text["lighthouse2_x"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
     QObject::connect(text["lighthouse2_y"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
@@ -86,6 +87,7 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(button["record"], SIGNAL(clicked()), this, SLOT(record()));
     QObject::connect(button["connect_roboy"], SIGNAL(clicked()), this, SLOT(connectRoboy()));
     QObject::connect(button["connect_object"], SIGNAL(clicked()), this, SLOT(connectObject()));
+    QObject::connect(button["clear_all"], SIGNAL(clicked()), this, SLOT(clearAll()));
 
     nh = ros::NodeHandlePtr(new ros::NodeHandle);
     if (!ros::isInitialized()) {
@@ -94,7 +96,7 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
         ros::init(argc, argv, "darkroom_rqt_plugin");
     }
 
-    pose_correction_sub = nh->subscribe("/roboy/middleware/RoboyDarkRoom/LighthousePoseCorrection", 1,
+    pose_correction_sub = nh->subscribe("/roboy/middleware/DarkRoom/LighthousePoseCorrection", 1,
                                         &RoboyDarkRoom::correctPose, this);
     spinner = boost::shared_ptr<ros::AsyncSpinner>(new ros::AsyncSpinner(1));
     spinner->start();
@@ -123,6 +125,7 @@ void RoboyDarkRoom::restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
 
 
 void RoboyDarkRoom::connectRoboy(){
+    ROS_INFO("connect roboy clicked");
     TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
     newObject->connectRoboy();
     trackedObjects[object_counter] = newObject;
@@ -130,6 +133,7 @@ void RoboyDarkRoom::connectRoboy(){
 }
 
 void RoboyDarkRoom::connectObject(){
+    ROS_INFO("connect object clicked");
     TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
     bool ok;
     newObject->connectObject(text["broadcast_ip"]->text().toStdString().c_str(), text["broadcast_port"]->text().toInt(&ok));
@@ -137,7 +141,15 @@ void RoboyDarkRoom::connectObject(){
     object_counter++;
 }
 
+void RoboyDarkRoom::clearAll(){
+    ROS_INFO("clear all clicked");
+    for (auto const &object:trackedObjects) {
+        object.second->clearAll();
+    }
+}
+
 void RoboyDarkRoom::resetLighthousePoses() {
+    ROS_INFO("reset lighthouse poses clicked");
     text["lighthouse2_x"]->setText(QString::number(slider["lighthouse2_x"]->value()/100.0*5.0));
     text["lighthouse2_y"]->setText(QString::number(slider["lighthouse2_y"]->value()/100.0*5.0));
     text["lighthouse2_z"]->setText(QString::number(slider["lighthouse2_z"]->value()/100.0*5.0));
@@ -255,23 +267,13 @@ void RoboyDarkRoom::startPoseEstimationSensorCloud() {
     ROS_INFO("pose_correction_sensor_cloud clicked");
     for (uint i=0; i<trackedObjects.size(); i++) {
         lock_guard<mutex> (trackedObjects[i]->mux);
-        if (button["pose_correction_sensor_cloud"]->isChecked()) {
-            ROS_INFO("starting pose estimation thread");
-            trackedObjects[i]->poseestimating = true;
-            trackedObjects[i]->poseestimation_thread = boost::shared_ptr<boost::thread>(
-                    new boost::thread([this, i](){
-                        trackedObjects[i]->poseEstimationSensorCloud();
-                    }));
-            trackedObjects[i]->poseestimation_thread->detach();
-        } else {
-            if (trackedObjects[i]->poseestimation_thread != nullptr) {
-                trackedObjects[i]->poseestimating = false;
-                if (trackedObjects[i]->poseestimation_thread->joinable()) {
-                    ROS_INFO("Waiting for pose estimation thread to terminate");
-                    trackedObjects[i]->poseestimation_thread->join();
-                }
-            }
-        }
+        ROS_INFO("starting pose estimation thread");
+        trackedObjects[i]->poseestimating = true;
+        trackedObjects[i]->poseestimation_thread = boost::shared_ptr<boost::thread>(
+                new boost::thread([this, i](){
+                    this->trackedObjects[i]->poseEstimationSensorCloud();
+                }));
+        trackedObjects[i]->poseestimation_thread->detach();
     }
 }
 
@@ -279,20 +281,18 @@ void RoboyDarkRoom::startEstimateSensorPositionsUsingRelativeDistances() {
     ROS_INFO("position_estimation_relativ_sensor_distances clicked");
     for (uint i=0; i<trackedObjects.size(); i++) {
         lock_guard<mutex> (trackedObjects[i]->mux);
-        if (button["position_estimation_relativ_sensor_distances"]->isChecked()) {
-            ROS_INFO("starting relativ distance thread for lighthouse 1");
-            trackedObjects[i]->distance_thread_1 = boost::shared_ptr<boost::thread>(
-                    new boost::thread([this, i](){
-                        trackedObjects[i]->estimateSensorPositionsUsingRelativeDistances(LIGHTHOUSE_A);
-                    }));
-            trackedObjects[i]->distance_thread_1->detach();
-            ROS_INFO("starting relativ distance thread for lighthouse 2");
-            trackedObjects[i]->distance_thread_2 = boost::shared_ptr<boost::thread>(
-                    new boost::thread([this, i](){
-                        trackedObjects[i]->estimateSensorPositionsUsingRelativeDistances(LIGHTHOUSE_B);
-                    }));
-            trackedObjects[i]->distance_thread_2->detach();
-        }
+        ROS_INFO("starting relativ distance thread for lighthouse 1");
+        trackedObjects[i]->distance_thread_1 = boost::shared_ptr<boost::thread>(
+                new boost::thread([this, i](){
+                    this->trackedObjects[i]->estimateSensorPositionsUsingRelativeDistances(LIGHTHOUSE_A, trackedObjects[i]->calibrated_sensors);
+                }));
+        trackedObjects[i]->distance_thread_1->detach();
+        ROS_INFO("starting relativ distance thread for lighthouse 2");
+        trackedObjects[i]->distance_thread_2 = boost::shared_ptr<boost::thread>(
+                new boost::thread([this, i](){
+                    this->trackedObjects[i]->estimateSensorPositionsUsingRelativeDistances(LIGHTHOUSE_B, trackedObjects[i]->calibrated_sensors);
+                }));
+        trackedObjects[i]->distance_thread_2->detach();
     }
 }
 
@@ -300,23 +300,13 @@ void RoboyDarkRoom::startPoseEstimationParticleFilter() {
     ROS_INFO("pose_correction_particle_filter clicked");
     for (uint i=0; i<trackedObjects.size(); i++) {
         lock_guard<mutex> (trackedObjects[i]->mux);
-        if (button["pose_correction_particle_filter"]->isChecked()) {
-            ROS_INFO("starting particle filter thread");
-            trackedObjects[i]->particle_filtering = true;
-            trackedObjects[i]->particlefilter_thread = boost::shared_ptr<boost::thread>(
-                    new boost::thread(
-                            [this, i](){this->trackedObjects[i]->poseEstimationParticleFilter();}
-                    ));
-            trackedObjects[i]->particlefilter_thread->detach();
-        } else {
-            if (trackedObjects[i]->particlefilter_thread != nullptr) {
-                trackedObjects[i]->particle_filtering = false;
-                if (trackedObjects[i]->particlefilter_thread->joinable()) {
-                    ROS_INFO("Waiting for particle filter thread to terminate");
-                    trackedObjects[i]->particlefilter_thread->join();
-                }
-            }
-        }
+        ROS_INFO("starting particle filter thread");
+        trackedObjects[i]->particle_filtering = true;
+        trackedObjects[i]->particlefilter_thread = boost::shared_ptr<boost::thread>(
+                new boost::thread(
+                        [this, i](){this->trackedObjects[i]->poseEstimationParticleFilter();}
+                ));
+        trackedObjects[i]->particlefilter_thread->detach();
     }
 }
 
