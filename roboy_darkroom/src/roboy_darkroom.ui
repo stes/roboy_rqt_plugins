@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>993</width>
-    <height>839</height>
+    <width>889</width>
+    <height>562</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -486,7 +486,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>810</y>
+     <y>520</y>
      <width>261</width>
      <height>27</height>
     </rect>
@@ -711,6 +711,9 @@
       <width>261</width>
       <height>27</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string extracomment="test"/>
     </property>
     <property name="text">
      <string>position estimation (using relativ)</string>

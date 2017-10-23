@@ -141,9 +141,9 @@ private:
     int object_counter = 0;
     map<int, TrackedObjectPtr> trackedObjects;
     mutex mux;
-    map<string, QLineEdit*> text;
-    map<string, QSlider*> slider;
-    map<string, QPushButton*> button;
+    static map<string, QLineEdit*> text;
+    static map<string, QSlider*> slider;
+    static map<string, QPushButton*> button;
     bool simulate = false;
 
     map<int, boost::shared_ptr<LighthouseSimulator>> lighthouse_simulation;
