@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <pluginlib/class_list_macros.h>
 #include <QStringList>
-
+#include <darkroom/LighthouseSimulator.hpp>
 #include <darkroom/TrackedObject.hpp>
 #include <roboy_communication_middleware/LighthousePoseCorrection.h>
 #include <map>
@@ -42,6 +42,11 @@ public Q_SLOTS:
     void connectRoboy();
 
     /**
+     * connect simulated Roboy via ROS
+     */
+    void simulateRoboy();
+
+    /**
      * connect Object via UDP socket
      */
     void connectObject();
@@ -51,9 +56,13 @@ public Q_SLOTS:
      */
     void clearAll();
     /**
-         * Resets the lighthouse poses to inital values
+         * Resets the lighthouse poses to slider values
          */
     void resetLighthousePoses();
+    /**
+         * Resets the object poses to slider values
+         */
+    void resetObjectPoses();
 
     /**
      * Toggles recording sensor values for all tracked objects
@@ -127,7 +136,7 @@ private:
     ros::Subscriber pose_correction_sub;
     tf::TransformListener tf_listener;
     tf::TransformBroadcaster tf_broadcaster;
-    static tf::Transform lighthouse1, lighthouse2, tf_world;
+    static tf::Transform lighthouse1, lighthouse2, tf_world, simulated_object_lighthouse1, simulated_object_lighthouse2;
     atomic<bool> publish_transform;
     int object_counter = 0;
     map<int, TrackedObjectPtr> trackedObjects;
@@ -135,4 +144,7 @@ private:
     map<string, QLineEdit*> text;
     map<string, QSlider*> slider;
     map<string, QPushButton*> button;
+    bool simulate = false;
+
+    map<int, boost::shared_ptr<LighthouseSimulator>> lighthouse_simulation;
 };

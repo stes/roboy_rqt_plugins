@@ -2,6 +2,8 @@
 
 tf::Transform RoboyDarkRoom::lighthouse1;
 tf::Transform RoboyDarkRoom::lighthouse2;
+tf::Transform RoboyDarkRoom::simulated_object_lighthouse1;
+tf::Transform RoboyDarkRoom::simulated_object_lighthouse2;
 tf::Transform RoboyDarkRoom::tf_world;
 
 RoboyDarkRoom::RoboyDarkRoom()
@@ -31,14 +33,43 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     // add widget to the user interface
     context.addWidget(widget_);
 
+    text["lighthouse1_x"] = widget_->findChild<QLineEdit *>("lighthouse1_x_text");
+    text["lighthouse1_y"] = widget_->findChild<QLineEdit *>("lighthouse1_y_text");
+    text["lighthouse1_z"] = widget_->findChild<QLineEdit *>("lighthouse1_z_text");
+    text["lighthouse1_roll"] = widget_->findChild<QLineEdit *>("lighthouse1_roll_text");
+    text["lighthouse1_pitch"] = widget_->findChild<QLineEdit *>("lighthouse1_pitch_text");
+    text["lighthouse1_yaw"] = widget_->findChild<QLineEdit *>("lighthouse1_yaw_text");
+
     text["lighthouse2_x"] = widget_->findChild<QLineEdit *>("lighthouse2_x_text");
     text["lighthouse2_y"] = widget_->findChild<QLineEdit *>("lighthouse2_y_text");
     text["lighthouse2_z"] = widget_->findChild<QLineEdit *>("lighthouse2_z_text");
     text["lighthouse2_roll"] = widget_->findChild<QLineEdit *>("lighthouse2_roll_text");
     text["lighthouse2_pitch"] = widget_->findChild<QLineEdit *>("lighthouse2_pitch_text");
     text["lighthouse2_yaw"] = widget_->findChild<QLineEdit *>("lighthouse2_yaw_text");
+
+    text["simulatedObject_x_lighthouse_1"] = widget_->findChild<QLineEdit *>("simulatedObject_x_text_lighthouse_1");
+    text["simulatedObject_y_lighthouse_1"] = widget_->findChild<QLineEdit *>("simulatedObject_y_text_lighthouse_1");
+    text["simulatedObject_z_lighthouse_1"] = widget_->findChild<QLineEdit *>("simulatedObject_z_text_lighthouse_1");
+    text["simulatedObject_roll_lighthouse_1"] = widget_->findChild<QLineEdit *>("simulatedObject_roll_text_lighthouse_1");
+    text["simulatedObject_pitch_lighthouse_1"] = widget_->findChild<QLineEdit *>("simulatedObject_pitch_text_lighthouse_1");
+    text["simulatedObject_yaw_lighthouse_1"] = widget_->findChild<QLineEdit *>("simulatedObject_yaw_text_lighthouse_1");
+
+    text["simulatedObject_x_lighthouse_2"] = widget_->findChild<QLineEdit *>("simulatedObject_x_text_lighthouse_2");
+    text["simulatedObject_y_lighthouse_2"] = widget_->findChild<QLineEdit *>("simulatedObject_y_text_lighthouse_2");
+    text["simulatedObject_z_lighthouse_2"] = widget_->findChild<QLineEdit *>("simulatedObject_z_text_lighthouse_2");
+    text["simulatedObject_roll_lighthouse_2"] = widget_->findChild<QLineEdit *>("simulatedObject_roll_text_lighthouse_2");
+    text["simulatedObject_pitch_lighthouse_2"] = widget_->findChild<QLineEdit *>("simulatedObject_pitch_text_lighthouse_2");
+    text["simulatedObject_yaw_lighthouse_2"] = widget_->findChild<QLineEdit *>("simulatedObject_yaw_text_lighthouse_2");
+
     text["broadcast_ip"] = widget_->findChild<QLineEdit *>("broadcast_ip");
     text["broadcast_port"] = widget_->findChild<QLineEdit *>("broadcast_port");
+
+    slider["lighthouse1_x"] = widget_->findChild<QSlider *>("lighthouse1_x");
+    slider["lighthouse1_y"] = widget_->findChild<QSlider *>("lighthouse1_y");
+    slider["lighthouse1_z"] = widget_->findChild<QSlider *>("lighthouse1_z");
+    slider["lighthouse1_roll"] = widget_->findChild<QSlider *>("lighthouse1_roll");
+    slider["lighthouse1_pitch"] = widget_->findChild<QSlider *>("lighthouse1_pitch");
+    slider["lighthouse1_yaw"] = widget_->findChild<QSlider *>("lighthouse1_yaw");
 
     slider["lighthouse2_x"] = widget_->findChild<QSlider *>("lighthouse2_x");
     slider["lighthouse2_y"] = widget_->findChild<QSlider *>("lighthouse2_y");
@@ -46,6 +77,20 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     slider["lighthouse2_roll"] = widget_->findChild<QSlider *>("lighthouse2_roll");
     slider["lighthouse2_pitch"] = widget_->findChild<QSlider *>("lighthouse2_pitch");
     slider["lighthouse2_yaw"] = widget_->findChild<QSlider *>("lighthouse2_yaw");
+
+    slider["simulatedObject_x_lighthouse_1"] = widget_->findChild<QSlider *>("simulatedObject_x_lighthouse_1");
+    slider["simulatedObject_y_lighthouse_1"] = widget_->findChild<QSlider *>("simulatedObject_y_lighthouse_1");
+    slider["simulatedObject_z_lighthouse_1"] = widget_->findChild<QSlider *>("simulatedObject_z_lighthouse_1");
+    slider["simulatedObject_roll_lighthouse_1"] = widget_->findChild<QSlider *>("simulatedObject_roll_lighthouse_1");
+    slider["simulatedObject_pitch_lighthouse_1"] = widget_->findChild<QSlider *>("simulatedObject_pitch_lighthouse_1");
+    slider["simulatedObject_yaw_lighthouse_1"] = widget_->findChild<QSlider *>("simulatedObject_yaw_lighthouse_1");
+
+    slider["simulatedObject_x_lighthouse_2"] = widget_->findChild<QSlider *>("simulatedObject_x_lighthouse_2");
+    slider["simulatedObject_y_lighthouse_2"] = widget_->findChild<QSlider *>("simulatedObject_y_lighthouse_2");
+    slider["simulatedObject_z_lighthouse_2"] = widget_->findChild<QSlider *>("simulatedObject_z_lighthouse_2");
+    slider["simulatedObject_roll_lighthouse_2"] = widget_->findChild<QSlider *>("simulatedObject_roll_lighthouse_2");
+    slider["simulatedObject_pitch_lighthouse_2"] = widget_->findChild<QSlider *>("simulatedObject_pitch_lighthouse_2");
+    slider["simulatedObject_yaw_lighthouse_2"] = widget_->findChild<QSlider *>("simulatedObject_yaw_lighthouse_2");
 
     button["triangulate"] = widget_->findChild<QPushButton *>("triangulate");
     button["show_rays"] = widget_->findChild<QPushButton *>("show_rays");
@@ -58,15 +103,16 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     button["calibrate_relative_distances"] = widget_->findChild<QPushButton *>("calibrate_relative_distances");
     button["record"] = widget_->findChild<QPushButton *>("record");
     button["connect_roboy"] = widget_->findChild<QPushButton *>("connect_roboy");
+    button["simulate_roboy"] = widget_->findChild<QPushButton *>("simulate_roboy");
     button["connect_object"] = widget_->findChild<QPushButton *>("connect_object");
     button["clear_all"] = widget_->findChild<QPushButton *>("clear_all");
 
-    QObject::connect(text["lighthouse2_x"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
-    QObject::connect(text["lighthouse2_y"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
-    QObject::connect(text["lighthouse2_z"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
-    QObject::connect(text["lighthouse2_roll"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
-    QObject::connect(text["lighthouse2_pitch"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
-    QObject::connect(text["lighthouse2_yaw"], SIGNAL(editingFinished()), this, SLOT(resetLighthousePoses()));
+    QObject::connect(slider["lighthouse1_x"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
+    QObject::connect(slider["lighthouse1_y"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
+    QObject::connect(slider["lighthouse1_z"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
+    QObject::connect(slider["lighthouse1_roll"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
+    QObject::connect(slider["lighthouse1_pitch"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
+    QObject::connect(slider["lighthouse1_yaw"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
 
     QObject::connect(slider["lighthouse2_x"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
     QObject::connect(slider["lighthouse2_y"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
@@ -74,6 +120,20 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(slider["lighthouse2_roll"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
     QObject::connect(slider["lighthouse2_pitch"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
     QObject::connect(slider["lighthouse2_yaw"], SIGNAL(valueChanged(int)), this, SLOT(resetLighthousePoses()));
+
+    QObject::connect(slider["simulatedObject_x_lighthouse_1"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_y_lighthouse_1"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_z_lighthouse_1"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_roll_lighthouse_1"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_pitch_lighthouse_1"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_yaw_lighthouse_1"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+
+    QObject::connect(slider["simulatedObject_x_lighthouse_2"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_y_lighthouse_2"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_z_lighthouse_2"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_roll_lighthouse_2"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_pitch_lighthouse_2"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
+    QObject::connect(slider["simulatedObject_yaw_lighthouse_2"], SIGNAL(valueChanged(int)), this, SLOT(resetObjectPoses()));
 
     QObject::connect(button["triangulate"], SIGNAL(clicked()), this, SLOT(startTriangulation()));
     QObject::connect(button["show_rays"], SIGNAL(clicked()), this, SLOT(showRays()));
@@ -86,6 +146,7 @@ void RoboyDarkRoom::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(button["switch_lighthouses"], SIGNAL(clicked()), this, SLOT(switchLighthouses()));
     QObject::connect(button["record"], SIGNAL(clicked()), this, SLOT(record()));
     QObject::connect(button["connect_roboy"], SIGNAL(clicked()), this, SLOT(connectRoboy()));
+    QObject::connect(button["simulate_roboy"], SIGNAL(clicked()), this, SLOT(simulateRoboy()));
     QObject::connect(button["connect_object"], SIGNAL(clicked()), this, SLOT(connectObject()));
     QObject::connect(button["clear_all"], SIGNAL(clicked()), this, SLOT(clearAll()));
 
@@ -123,13 +184,41 @@ void RoboyDarkRoom::restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
     // v = instance_settings.value(k)
 }
 
-
 void RoboyDarkRoom::connectRoboy(){
     ROS_INFO("connect roboy clicked");
     TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
     newObject->connectRoboy();
     trackedObjects[object_counter] = newObject;
     object_counter++;
+}
+
+void RoboyDarkRoom::simulateRoboy() {
+    ROS_INFO("simulate roboy clicked");
+
+    resetObjectPoses();
+
+    simulate = true;
+
+    TrackedObjectPtr newObject = TrackedObjectPtr(new TrackedObject());
+    newObject->connectRoboy();
+    trackedObjects[object_counter] = newObject;
+    object_counter++;
+
+    lighthouse_simulation[LIGHTHOUSE_A].reset( new LighthouseSimulator(LIGHTHOUSE_A));
+    lighthouse_simulation[LIGHTHOUSE_B].reset( new LighthouseSimulator(LIGHTHOUSE_B));
+
+
+    lighthouse_simulation[LIGHTHOUSE_A]->sensor_publishing = true;
+    lighthouse_simulation[LIGHTHOUSE_B]->sensor_publishing = true;
+
+    lighthouse_simulation[LIGHTHOUSE_A]->sensor_thread = boost::shared_ptr<boost::thread>(
+                    new boost::thread(
+                            [this](){this->lighthouse_simulation[LIGHTHOUSE_A]->PublishSensorData();}
+                    ));
+    lighthouse_simulation[LIGHTHOUSE_B]->sensor_thread = boost::shared_ptr<boost::thread>(
+            new boost::thread(
+                    [this](){this->lighthouse_simulation[LIGHTHOUSE_B]->PublishSensorData();}
+            ));
 }
 
 void RoboyDarkRoom::connectObject(){
@@ -149,7 +238,14 @@ void RoboyDarkRoom::clearAll(){
 }
 
 void RoboyDarkRoom::resetLighthousePoses() {
-    ROS_INFO("reset lighthouse poses clicked");
+    ROS_INFO("reset lighthouse poses");
+    text["lighthouse1_x"]->setText(QString::number(slider["lighthouse1_x"]->value()/100.0*5.0));
+    text["lighthouse1_y"]->setText(QString::number(slider["lighthouse1_y"]->value()/100.0*5.0));
+    text["lighthouse1_z"]->setText(QString::number(slider["lighthouse1_z"]->value()/100.0*5.0));
+    text["lighthouse1_roll"]->setText(QString::number(slider["lighthouse1_roll"]->value()));
+    text["lighthouse1_pitch"]->setText(QString::number(slider["lighthouse1_pitch"]->value()));
+    text["lighthouse1_yaw"]->setText(QString::number(slider["lighthouse1_yaw"]->value()));
+
     text["lighthouse2_x"]->setText(QString::number(slider["lighthouse2_x"]->value()/100.0*5.0));
     text["lighthouse2_y"]->setText(QString::number(slider["lighthouse2_y"]->value()/100.0*5.0));
     text["lighthouse2_z"]->setText(QString::number(slider["lighthouse2_z"]->value()/100.0*5.0));
@@ -161,11 +257,20 @@ void RoboyDarkRoom::resetLighthousePoses() {
     tf::Quaternion quat;
     quat.setRPY(0, 0, 0);
     tf_world.setRotation(quat);
-    quat.setRPY(0, 0, 0);
-    lighthouse1.setOrigin(tf::Vector3(0, 0, 0));
-    quat.setRPY(0,0,0);
-    lighthouse1.setRotation(quat);
+
     bool ok;
+    quat.setRPY(
+            text["lighthouse1_roll"]->text().toFloat(&ok)*M_PI/180.0,
+            text["lighthouse1_pitch"]->text().toFloat(&ok)*M_PI/180.0,
+            text["lighthouse1_yaw"]->text().toFloat(&ok)*M_PI/180.0
+    );
+    lighthouse1.setRotation(quat);
+    lighthouse1.setOrigin(tf::Vector3(
+            text["lighthouse1_x"]->text().toFloat(&ok),
+            text["lighthouse1_y"]->text().toFloat(&ok),
+            text["lighthouse1_z"]->text().toFloat(&ok)
+    ));
+
     quat.setRPY(
             text["lighthouse2_roll"]->text().toFloat(&ok)*M_PI/180.0,
             text["lighthouse2_pitch"]->text().toFloat(&ok)*M_PI/180.0,
@@ -177,7 +282,49 @@ void RoboyDarkRoom::resetLighthousePoses() {
             text["lighthouse2_y"]->text().toFloat(&ok),
             text["lighthouse2_z"]->text().toFloat(&ok)
     ));
-    lighthouse2.setRotation(quat);
+}
+
+void RoboyDarkRoom::resetObjectPoses() {
+    ROS_INFO("reset obejct poses");
+    text["simulatedObject_x_lighthouse_1"]->setText(QString::number(slider["simulatedObject_x_lighthouse_1"]->value()/100.0*5.0));
+    text["simulatedObject_y_lighthouse_1"]->setText(QString::number(slider["simulatedObject_y_lighthouse_1"]->value()/100.0*5.0));
+    text["simulatedObject_z_lighthouse_1"]->setText(QString::number(slider["simulatedObject_z_lighthouse_1"]->value()/100.0*5.0));
+    text["simulatedObject_roll_lighthouse_1"]->setText(QString::number(slider["simulatedObject_roll_lighthouse_1"]->value()));
+    text["simulatedObject_pitch_lighthouse_1"]->setText(QString::number(slider["simulatedObject_pitch_lighthouse_1"]->value()));
+    text["simulatedObject_yaw_lighthouse_1"]->setText(QString::number(slider["simulatedObject_yaw_lighthouse_1"]->value()));
+
+    text["simulatedObject_x_lighthouse_2"]->setText(QString::number(slider["simulatedObject_x_lighthouse_2"]->value()/100.0*5.0));
+    text["simulatedObject_y_lighthouse_2"]->setText(QString::number(slider["simulatedObject_y_lighthouse_2"]->value()/100.0*5.0));
+    text["simulatedObject_z_lighthouse_2"]->setText(QString::number(slider["simulatedObject_z_lighthouse_2"]->value()/100.0*5.0));
+    text["simulatedObject_roll_lighthouse_2"]->setText(QString::number(slider["simulatedObject_roll_lighthouse_2"]->value()));
+    text["simulatedObject_pitch_lighthouse_2"]->setText(QString::number(slider["simulatedObject_pitch_lighthouse_2"]->value()));
+    text["simulatedObject_yaw_lighthouse_2"]->setText(QString::number(slider["simulatedObject_yaw_lighthouse_2"]->value()));
+
+    tf::Quaternion quat;
+    bool ok;
+    quat.setRPY(
+            text["simulatedObject_roll_lighthouse_1"]->text().toFloat(&ok)*M_PI/180.0,
+            text["simulatedObject_pitch_lighthouse_1"]->text().toFloat(&ok)*M_PI/180.0,
+            text["simulatedObject_yaw_lighthouse_1"]->text().toFloat(&ok)*M_PI/180.0
+    );
+    simulated_object_lighthouse1.setRotation(quat);
+    simulated_object_lighthouse1.setOrigin(tf::Vector3(
+            text["simulatedObject_x_lighthouse_1"]->text().toFloat(&ok),
+            text["simulatedObject_y_lighthouse_1"]->text().toFloat(&ok),
+            text["simulatedObject_z_lighthouse_1"]->text().toFloat(&ok)
+    ));
+
+    quat.setRPY(
+            text["simulatedObject_roll_lighthouse_2"]->text().toFloat(&ok)*M_PI/180.0,
+            text["simulatedObject_pitch_lighthouse_2"]->text().toFloat(&ok)*M_PI/180.0,
+            text["simulatedObject_yaw_lighthouse_2"]->text().toFloat(&ok)*M_PI/180.0
+    );
+    simulated_object_lighthouse2.setRotation(quat);
+    simulated_object_lighthouse2.setOrigin(tf::Vector3(
+            text["simulatedObject_x_lighthouse_2"]->text().toFloat(&ok),
+            text["simulatedObject_y_lighthouse_2"]->text().toFloat(&ok),
+            text["simulatedObject_z_lighthouse_2"]->text().toFloat(&ok)
+    ));
 }
 
 void RoboyDarkRoom::record() {
@@ -311,16 +458,16 @@ void RoboyDarkRoom::startPoseEstimationParticleFilter() {
 }
 
 void RoboyDarkRoom::transformPublisher() {
-    ros::Rate rate(10);
+    ros::Rate rate(30);
     while (publish_transform) {
         lock_guard<mutex> lock(mux);
         tf_broadcaster.sendTransform(tf::StampedTransform(lighthouse1, ros::Time::now(), "world", "lighthouse1"));
         tf_broadcaster.sendTransform(tf::StampedTransform(lighthouse2, ros::Time::now(), "world", "lighthouse2"));
-//        tf::Matrix3x3 rot(lighthouse2.getRotation());
-//
-//        ROS_INFO_STREAM("rot: \n" << rot.getRow(0).getX() << "\t" << rot.getRow(0).getY() << "\t" << rot.getRow(0).getZ() << endl <<
-//                                rot.getRow(1).getX() << "\t" << rot.getRow(1).getY() << "\t" << rot.getRow(1).getZ() << endl <<
-//                                rot.getRow(2).getX() << "\t" << rot.getRow(2).getY() << "\t" << rot.getRow(2).getZ() << endl);
+        if(simulate){
+            tf_broadcaster.sendTransform(tf::StampedTransform(simulated_object_lighthouse1, ros::Time::now(), "lighthouse1", "simulated_object_lighthouse1"));
+            tf_broadcaster.sendTransform(tf::StampedTransform(simulated_object_lighthouse2, ros::Time::now(), "lighthouse2", "simulated_object_lighthouse2"));
+        }
+
         rate.sleep();
     }
 }
