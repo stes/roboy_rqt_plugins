@@ -84,7 +84,7 @@ void RoboyMotorStatus::MotorStatus(const roboy_communication_middleware::MotorSt
     if (time.size() > samples_per_plot)
         time.pop_front();
 
-    if (counter % 3 == 0)
+    if (counter % 10 == 0)
             Q_EMIT newData();
 }
 
