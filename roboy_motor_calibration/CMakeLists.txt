@@ -6,6 +6,12 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O0 -g")
 find_package(catkin REQUIRED COMPONENTS roscpp roslint rqt_gui rqt_gui_cpp std_msgs roboy_communication_middleware )
 catkin_package(CATKIN_DEPENDS roboy_communication_middleware)
 
+# yaml-cpp
+find_package(PkgConfig REQUIRED )
+
+pkg_check_modules( yaml-cpp REQUIRED yaml-cpp)
+include_directories(${yaml-cpp_INCLUDE_DIRS})
+
 include_directories( include qcustomplot)
 
 ## System dependencies are found with CMake's conventions
@@ -42,7 +48,7 @@ add_library( roboy_motor_calibration src/roboy_motor_calibration.cpp ${roboy_mot
 
 add_dependencies(roboy_motor_calibration roboy_communication_middleware_gencpp)
 
-target_link_libraries(roboy_motor_calibration ${catkin_LIBRARIES} )
+target_link_libraries(roboy_motor_calibration ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES} )
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   target_link_libraries(roboy_motor_calibration Qt5::Widgets)

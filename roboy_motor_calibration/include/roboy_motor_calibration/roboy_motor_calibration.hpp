@@ -14,9 +14,14 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <map>
+#include <mutex>
 #include <common_utilities/CommonDefinitions.h>
 #include <std_srvs/SetBool.h>
 #include <boost/thread/thread.hpp>
+#include <qcustomplot.h>
+#include <yaml-cpp/yaml.h>
+#include <QFileInfo>
+#include <fstream>
 
 #endif
 
@@ -40,10 +45,24 @@ public:
 
     virtual void restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
                                  const qt_gui_cpp::Settings &instance_settings);
+    /**
+     * Reads a yaml motor config file
+     * @param filepath to config
+     * @return success
+     */
+    bool readConfig(string filepath);
+
+    /**
+     * Writes a yaml motor config file
+     * @param filepath
+     * @return success
+     */
+    bool writeConfig(string filepath);
 public Q_SLOTS:
     void stopButtonAllClicked();
     void MotorCalibration();
     void plotData();
+    void loadConfig();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
     void ADCvalue(const roboy_communication_middleware::ADCvalue::ConstPtr &msg);
@@ -57,10 +76,12 @@ private:
     ros::Subscriber motorStatus, loadCells;
     ros::ServiceClient motorCalibration, emergencyStop;
 private:
+    mutex mux;
     boost::shared_ptr<boost::thread> calibration_thread;
-    QVector<double> time;
+    QVector<double> time, timeMotorData;
+    static map<int,vector<float>> coeffs;
     int counter = 0, samples_per_plot = 300;
-    QVector<double> motorData, loadCellLoad, loadCellValue;
+    QVector<double> motorData, motorDataCalibrated, loadCellLoad, loadCellValue;
     map<int,bool> stopButton;
     map<string, QPushButton*> button;
     map<string, QLineEdit*> text;
