@@ -44,11 +44,37 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     }
 
     motorStatus = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyMotorCalibration::MotorStatus, this);
+    loadCells = nh->subscribe("/roboy/middleware/LoadCells", 1, &RoboyMotorCalibration::ADCvalue, this);
     motorCalibration = nh->serviceClient<roboy_communication_middleware::MotorCalibrationService>("/roboy/middleware/MotorCalibration");
 
     ui.stop_button_all->setStyleSheet("background-color: green");
     QObject::connect(button["stop_button_all"], SIGNAL(clicked()), this, SLOT(stopButtonAllClicked()));
     QObject::connect(button["calibrate"], SIGNAL(clicked()), this, SLOT(MotorCalibration()));
+
+    ui.load->addGraph();
+    ui.load->graph(0)->setPen(QPen(color_pallette[0]));
+
+    ui.adc_value->addGraph();
+    ui.adc_value->graph(0)->setPen(QPen(color_pallette[1]));
+
+    ui.displacement->addGraph();
+    ui.displacement->graph(0)->setPen(QPen(color_pallette[2]));
+
+    ui.load->xAxis->setLabel("x");
+    ui.load->yAxis->setLabel("Newton");
+    ui.load->yAxis->setRange(0, 500);
+    ui.load->replot();
+
+    ui.adc_value->xAxis->setLabel("x");
+    ui.adc_value->yAxis->setLabel("adc_value");
+    ui.adc_value->yAxis->setRange(0, 4095);
+    ui.adc_value->replot();
+
+    ui.displacement->xAxis->setLabel("x");
+    ui.displacement->yAxis->setLabel("displacement");
+    ui.displacement->replot();
+
+    QObject::connect(this, SIGNAL(newData()), this, SLOT(plotData()));
 }
 
 void RoboyMotorCalibration::shutdownPlugin() {
@@ -61,8 +87,8 @@ void RoboyMotorCalibration::saveSettings(qt_gui_cpp::Settings &plugin_settings,
 }
 
 void RoboyMotorCalibration::restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
-                                            const qt_gui_cpp::Settings &instance_settings) {
-    // v = instance_settings.value(k)
+                                            const qt_gui_cpp::Settings &instance_settings){
+
 }
 
 void RoboyMotorCalibration::stopButtonAllClicked(){
@@ -110,10 +136,37 @@ void RoboyMotorCalibration::MotorStatus(const roboy_communication_middleware::Mo
             Q_EMIT newData();
 }
 
+void RoboyMotorCalibration::ADCvalue(const roboy_communication_middleware::ADCvalue::ConstPtr &msg) {
+    ROS_INFO_THROTTLE(5, "receiving load_cell status");
+    time.push_back(counter++);
+    loadCellLoad.push_back(0.2659488846 + 0.0990372554/4.0*msg->load[ui.motor->value()]);
+    if (loadCellLoad.size() > samples_per_plot) {
+        loadCellLoad.pop_front();
+    }
+
+    loadCellValue.push_back(msg->adc_value[ui.motor->value()]);
+    if (loadCellValue.size() > samples_per_plot) {
+        loadCellValue.pop_front();
+    }
+    if (time.size() > samples_per_plot)
+        time.pop_front();
+
+    if (counter % 10 == 0)
+            Q_EMIT newData();
+}
+
 void RoboyMotorCalibration::plotData() {
-    ui.plot->graph(0)->setData(time, motorData);
-    ui.plot->graph(0)->rescaleAxes();
-    ui.plot->replot();
+    ui.load->graph(0)->setData(time, loadCellLoad);
+    ui.load->xAxis->rescale();
+    ui.load->replot();
+
+    ui.adc_value->graph(0)->setData(time, loadCellValue);
+    ui.adc_value->xAxis->rescale();
+    ui.adc_value->replot();
+
+    ui.displacement->graph(0)->setData(time, motorData);
+    ui.displacement->graph(0)->rescaleAxes();
+    ui.displacement->replot();
 }
 
 PLUGINLIB_DECLARE_CLASS(roboy_motor_calibration, RoboyMotorCalibration, RoboyMotorCalibration, rqt_gui_cpp::Plugin)

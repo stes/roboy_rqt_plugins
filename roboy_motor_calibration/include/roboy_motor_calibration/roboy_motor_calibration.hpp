@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #include <rqt_gui_cpp/plugin.h>
 #include <roboy_motor_calibration/ui_roboy_motor_calibration.h>
+#include <roboy_communication_middleware/ADCvalue.h>
 #include <roboy_communication_middleware/MotorCalibrationService.h>
 #include <roboy_communication_middleware/MotorStatus.h>
 #include <QWidget>
@@ -45,6 +46,7 @@ public Q_SLOTS:
     void plotData();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
+    void ADCvalue(const roboy_communication_middleware::ADCvalue::ConstPtr &msg);
 Q_SIGNALS:
     void newData();
 
@@ -52,14 +54,16 @@ private:
     Ui::RoboyMotorCalibration ui;
     QWidget *widget_;
     ros::NodeHandlePtr nh;
-    ros::Subscriber motorStatus;
+    ros::Subscriber motorStatus, loadCells;
     ros::ServiceClient motorCalibration, emergencyStop;
 private:
     boost::shared_ptr<boost::thread> calibration_thread;
     QVector<double> time;
     int counter = 0, samples_per_plot = 300;
-    QVector<double> motorData;
+    QVector<double> motorData, loadCellLoad, loadCellValue;
     map<int,bool> stopButton;
     map<string, QPushButton*> button;
     map<string, QLineEdit*> text;
+    QColor color_pallette[14] = {Qt::blue, Qt::red, Qt::green, Qt::cyan, Qt::magenta, Qt::darkGray, Qt::darkRed, Qt::darkGreen,
+                                 Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow, Qt::black, Qt::gray};
 };

@@ -43,6 +43,10 @@ add_dependencies(roboy_motor_command roboy_communication_middleware_gencpp)
 
 target_link_libraries(roboy_motor_command ${catkin_LIBRARIES} )
 
+add_executable( speed_test src/speed_test.cpp)
+add_dependencies(speed_test roboy_communication_middleware_gencpp)
+target_link_libraries(speed_test ${catkin_LIBRARIES} )
+
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   target_link_libraries(roboy_motor_command Qt5::Widgets)
 else()
@@ -55,6 +59,10 @@ endif()
 
 install(TARGETS roboy_motor_command
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/roboy_rqt_plugins
+        )
+
+install(TARGETS speed_test
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/roboy_rqt_plugins
         )
 
 install(FILES
