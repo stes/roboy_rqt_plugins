@@ -13,25 +13,26 @@
 #include <QStringList>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QFileDialog>
 #include <map>
 #include <mutex>
 #include <common_utilities/CommonDefinitions.h>
+#include <common_utilities/MotorConfig.hpp>
 #include <std_srvs/SetBool.h>
 #include <boost/thread/thread.hpp>
 #include <qcustomplot.h>
-#include <yaml-cpp/yaml.h>
 #include <QFileInfo>
 #include <fstream>
+#include <stdlib.h>
 
 #endif
 
-#define NUMBER_OF_MOTORS_PER_FPGA 14
 #define NUMBER_OF_FPGAS 6
 
 using namespace std;
 
 class RoboyMotorCalibration
-        : public rqt_gui_cpp::Plugin {
+        : public rqt_gui_cpp::Plugin, MotorConfig {
     Q_OBJECT
 public:
     RoboyMotorCalibration();
@@ -45,27 +46,35 @@ public:
 
     virtual void restoreSettings(const qt_gui_cpp::Settings &plugin_settings,
                                  const qt_gui_cpp::Settings &instance_settings);
-    /**
-     * Reads a yaml motor config file
-     * @param filepath to config
-     * @return success
-     */
-    bool readConfig(string filepath);
-
-    /**
-     * Writes a yaml motor config file
-     * @param filepath
-     * @return success
-     */
-    bool writeConfig(string filepath);
 public Q_SLOTS:
     void stopButtonAllClicked();
     void MotorCalibration();
     void plotData();
     void loadConfig();
+    void fitCurve();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
     void ADCvalue(const roboy_communication_middleware::ADCvalue::ConstPtr &msg);
+    /**
+	 * Performs polynomial regression (http://www.bragitoff.com/2015/09/c-program-for-polynomial-fit-least-squares/)
+	 * @param degree (e.g. 2 -> a * x^0 + b * x^1 + c * x^2)
+	 * @param coeffs the estimated coefficients
+	 * @param X the x-data
+	 * @param Y the y-data
+	 */
+    void polynomialRegression(int degree, vector<double> &x, vector<double> &y,
+                              vector<float> &coeffs);
+    /**
+     * Estimates the spring parameters
+     * @param force vector of samples recorded with load cell
+     * @param displacement vector of samples recorded with load cell
+     * @param coefficients_displacement_force returns these polynomial parameters
+     * @param coefficients_force_displacement returns these polynomial parameters
+     */
+    void estimateSpringParameters(vector<double> &force,
+                                  vector<double> &displacement,
+                                  vector<float> &coefficients_displacement_force,
+                                  vector<float> &coefficients_force_displacement);
 Q_SIGNALS:
     void newData();
 
@@ -79,7 +88,6 @@ private:
     mutex mux;
     boost::shared_ptr<boost::thread> calibration_thread;
     QVector<double> time, timeMotorData;
-    static map<int,vector<float>> coeffs;
     int counter = 0, samples_per_plot = 300;
     QVector<double> motorData, motorDataCalibrated, loadCellLoad, loadCellValue;
     map<int,bool> stopButton;

@@ -74,6 +74,10 @@ void RoboyMotorCommand::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(ui.pos, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
     QObject::connect(ui.vel, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
     QObject::connect(ui.dis, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
+    QObject::connect(ui.force, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
+
+    QObject::connect(ui.load_motor_config, SIGNAL(clicked()), this, SLOT(loadMotorConfig()));
+
 }
 
 void RoboyMotorCommand::shutdownPlugin() {
@@ -136,7 +140,11 @@ void RoboyMotorCommand::setPointAllChanged(int){
                                                 /scale_widget[NUMBER_OF_MOTORS_PER_FPGA]->text().toInt(&ok));
         if(ok && motor<NUMBER_OF_MOTORS_PER_FPGA) {
             msg.motors.push_back(motor);
-            msg.setPoints.push_back(setpoint[ui.fpga->value()][motor]);
+            if(control_mode[ui.fpga->value()] == FORCE){
+
+            }else{
+                msg.setPoints.push_back(setpoint[ui.fpga->value()][motor]);
+            }
         }
     }
     if(msg.motors.size()>0)
@@ -179,11 +187,19 @@ void RoboyMotorCommand::controlModeChanged(){
         control_mode[ui.fpga->value()] = DISPLACEMENT;
         msg.request.control_mode = DISPLACEMENT;
     }
+    if(ui.force->isChecked()) {
+        control_mode[ui.fpga->value()] = FORCE;
+        msg.request.control_mode = DISPLACEMENT;
+    }
 
     bool ok;
     msg.request.setPoint = setpoint_slider_widget[NUMBER_OF_MOTORS_PER_FPGA]->value()
                            * scale_widget[NUMBER_OF_MOTORS_PER_FPGA]->text().toInt(&ok);
     motorControl.call(msg);
+}
+
+void RoboyMotorCommand::loadMotorConfig(){
+    readConfig(ui.motor_config_path->text().toStdString());
 }
 
 PLUGINLIB_DECLARE_CLASS(roboy_motor_command, RoboyMotorCommand, RoboyMotorCommand, rqt_gui_cpp::Plugin)

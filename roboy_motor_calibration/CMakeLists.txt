@@ -3,14 +3,8 @@ project( roboy_motor_calibration)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O0 -g")
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslint rqt_gui rqt_gui_cpp std_msgs roboy_communication_middleware )
-catkin_package(CATKIN_DEPENDS roboy_communication_middleware)
-
-# yaml-cpp
-find_package(PkgConfig REQUIRED )
-
-pkg_check_modules( yaml-cpp REQUIRED yaml-cpp)
-include_directories(${yaml-cpp_INCLUDE_DIRS})
+find_package(catkin REQUIRED COMPONENTS roscpp roslint rqt_gui rqt_gui_cpp std_msgs
+        roboy_communication_middleware common_utilities )
 
 include_directories( include qcustomplot)
 
@@ -27,7 +21,8 @@ catkin_python_setup()
 
 roslint_cpp()
 
-catkin_package( INCLUDE_DIRS include LIBRARIES ${PROJECT_NAME} CATKIN_DEPENDS roscpp rqt_gui_cpp std_msgs roboy_communication_middleware)
+catkin_package( INCLUDE_DIRS include LIBRARIES ${PROJECT_NAME}
+        CATKIN_DEPENDS roscpp rqt_gui_cpp std_msgs roboy_communication_middleware common_utilities)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   qt5_wrap_cpp(roboy_motor_calibration_MOCS include/roboy_motor_calibration/roboy_motor_calibration.hpp qcustomplot/qcustomplot.h)

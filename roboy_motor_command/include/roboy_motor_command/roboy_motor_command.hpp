@@ -14,17 +14,17 @@
 #include <QLineEdit>
 #include <map>
 #include <common_utilities/CommonDefinitions.h>
+#include <common_utilities/MotorConfig.hpp>
 #include <std_srvs/SetBool.h>
 
 #endif
 
-#define NUMBER_OF_MOTORS_PER_FPGA 14
 #define NUMBER_OF_FPGAS 6
 
 using namespace std;
 
 class RoboyMotorCommand
-        : public rqt_gui_cpp::Plugin {
+        : public rqt_gui_cpp::Plugin, MotorConfig {
     Q_OBJECT
 public:
     RoboyMotorCommand();
@@ -46,6 +46,7 @@ public Q_SLOTS:
     void scaleChanged();
     void scaleChangedAll();
     void controlModeChanged();
+    void loadMotorConfig();
 private:
     Ui::RoboyMotorCommand ui;
     QWidget *widget_;
@@ -62,5 +63,5 @@ private:
     QList<QLineEdit*> scale_widget;
     enum MOTOR{ MOTOR0, MOTOR1, MOTOR2, MOTOR3, MOTOR4, MOTOR5, MOTOR6, MOTOR7,
         MOTOR8, MOTOR9, MOTOR10, MOTOR11, MOTOR12, MOTOR13, MOTORALL};
-    enum CONTROL_MODE{POSITION, VELOCITY, DISPLACEMENT};
+    enum CONTROL_MODE{POSITION, VELOCITY, DISPLACEMENT, FORCE};
 };
