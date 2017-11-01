@@ -48,10 +48,6 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
         ros::init(argc, argv, "motor_calibration_rqt_plugin");
     }
 
-    motorStatus = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyMotorCalibration::MotorStatus, this);
-    loadCells = nh->subscribe("/roboy/middleware/LoadCells", 1, &RoboyMotorCalibration::ADCvalue, this);
-    motorCalibration = nh->serviceClient<roboy_communication_middleware::MotorCalibrationService>("/roboy/middleware/MotorCalibration");
-
     ui.stop_button_all->setStyleSheet("background-color: green");
     QObject::connect(button["stop_button_all"], SIGNAL(clicked()), this, SLOT(stopButtonAllClicked()));
     QObject::connect(button["calibrate"], SIGNAL(clicked()), this, SLOT(MotorCalibration()));
@@ -108,6 +104,10 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
         coeffs_force2displacement[i] = {0,0,0,0,0};
     }
     loadConfig();
+
+    motorStatus = nh->subscribe("/roboy/middleware/MotorStatus", 1, &RoboyMotorCalibration::MotorStatus, this);
+    loadCells = nh->subscribe("/roboy/middleware/LoadCells", 1, &RoboyMotorCalibration::ADCvalue, this);
+    motorCalibration = nh->serviceClient<roboy_communication_middleware::MotorCalibrationService>("/roboy/middleware/MotorCalibration");
 }
 
 void RoboyMotorCalibration::shutdownPlugin() {

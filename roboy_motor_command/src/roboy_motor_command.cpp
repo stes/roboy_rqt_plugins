@@ -77,7 +77,7 @@ void RoboyMotorCommand::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(ui.force, SIGNAL(clicked()), this, SLOT(controlModeChanged()));
 
     QObject::connect(ui.load_motor_config, SIGNAL(clicked()), this, SLOT(loadMotorConfig()));
-
+    loadMotorConfig();
 }
 
 void RoboyMotorCommand::shutdownPlugin() {
@@ -122,7 +122,16 @@ void RoboyMotorCommand::setPointChanged(int){
         setpoint_widget[motor]->setText(QString::number(setpoint[ui.fpga->value()][motor]));
         if(ok && motor<NUMBER_OF_MOTORS_PER_FPGA) {
             msg.motors.push_back(motor);
-            msg.setPoints.push_back(setpoint[ui.fpga->value()][motor]);
+            if(control_mode[ui.fpga->value()] == FORCE){
+                float force = setpoint[ui.fpga->value()][motor];
+                double displacement = coeffs_force2displacement[motor][0];
+                for(uint i=1; i<coeffs_force2displacement[motor].size();i++){
+                    displacement += coeffs_force2displacement[motor][i]*pow(force,(double)i);
+                }
+                msg.setPoints.push_back(displacement);
+            }else{
+                msg.setPoints.push_back(setpoint[ui.fpga->value()][motor]);
+            }
         }
     }
     if(msg.motors.size()>0)
@@ -141,7 +150,12 @@ void RoboyMotorCommand::setPointAllChanged(int){
         if(ok && motor<NUMBER_OF_MOTORS_PER_FPGA) {
             msg.motors.push_back(motor);
             if(control_mode[ui.fpga->value()] == FORCE){
-
+                float force = setpoint[ui.fpga->value()][motor];
+                double displacement = coeffs_force2displacement[motor][0];
+                for(uint i=1; i<coeffs_force2displacement[motor].size();i++){
+                    displacement += coeffs_force2displacement[motor][i]*pow(force,(double)i);
+                }
+                msg.setPoints.push_back(displacement);
             }else{
                 msg.setPoints.push_back(setpoint[ui.fpga->value()][motor]);
             }
@@ -195,7 +209,8 @@ void RoboyMotorCommand::controlModeChanged(){
     bool ok;
     msg.request.setPoint = setpoint_slider_widget[NUMBER_OF_MOTORS_PER_FPGA]->value()
                            * scale_widget[NUMBER_OF_MOTORS_PER_FPGA]->text().toInt(&ok);
-    motorControl.call(msg);
+    if(!motorControl.call(msg))
+        ROS_ERROR("failed to change control mode, is emergency stop active?!");
 }
 
 void RoboyMotorCommand::loadMotorConfig(){
