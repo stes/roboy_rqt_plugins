@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
-    <height>705</height>
+    <width>863</width>
+    <height>778</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>171</width>
+     <width>271</width>
      <height>31</height>
     </rect>
    </property>
@@ -34,96 +34,172 @@
     <string>MOTOR CALIBRATION</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="stop_button_all">
+  <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>310</y>
-     <width>511</width>
-     <height>61</height>
+     <y>30</y>
+     <width>841</width>
+     <height>341</height>
     </rect>
    </property>
-   <property name="text">
-    <string>STOP</string>
+   <property name="currentIndex">
+    <number>1</number>
    </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="calibrate">
-   <property name="geometry">
-    <rect>
-     <x>540</x>
-     <y>310</y>
-     <width>281</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>calibrate</string>
-   </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="displacement_min">
-   <property name="geometry">
-    <rect>
-     <x>740</x>
-     <y>640</y>
-     <width>81</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>0</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_4">
-   <property name="geometry">
-    <rect>
-     <x>680</x>
-     <y>640</y>
-     <width>61</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <weight>50</weight>
-     <bold>false</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>dis_min</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>680</x>
-     <y>670</y>
-     <width>61</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <weight>50</weight>
-     <bold>false</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>dis_min</string>
-   </property>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>myoMuscle</string>
+    </attribute>
+    <widget class="QCustomPlot" name="displacement" native="true">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>10</y>
+       <width>271</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_11">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>displacement</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QCustomPlot" name="adc_value" native="true">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>10</y>
+       <width>271</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>68</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>adc</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QCustomPlot" name="load" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>271</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>68</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>muscleMuscle</string>
+    </attribute>
+    <widget class="QCustomPlot" name="motorPosition" native="true">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>10</y>
+       <width>271</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_15">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>motorPosition</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QCustomPlot" name="motorAngle" native="true">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>10</y>
+       <width>271</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_16">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>motorAngle</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QCustomPlot" name="load_2" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>271</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_17">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>68</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
   </widget>
   <widget class="QLineEdit" name="displacement_max">
    <property name="geometry">
     <rect>
-     <x>740</x>
-     <y>670</y>
+     <x>750</x>
+     <y>740</y>
      <width>81</width>
      <height>27</height>
     </rect>
@@ -132,44 +208,37 @@
     <string>100</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="timeout">
+  <widget class="QSpinBox" name="motor">
    <property name="geometry">
     <rect>
-     <x>740</x>
+     <x>700</x>
      <y>580</y>
-     <width>81</width>
-     <height>27</height>
+     <width>41</width>
+     <height>30</height>
     </rect>
    </property>
-   <property name="text">
-    <string>500000</string>
+   <property name="maximum">
+    <number>13</number>
    </property>
   </widget>
-  <widget class="QLabel" name="label_6">
+  <widget class="QSpinBox" name="fpga">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>800</x>
      <y>580</y>
-     <width>91</width>
-     <height>21</height>
+     <width>41</width>
+     <height>31</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-     <weight>50</weight>
-     <bold>false</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>timeout [ms]</string>
+   <property name="maximum">
+    <number>5</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>680</x>
-     <y>610</y>
+     <x>690</x>
+     <y>680</y>
      <width>61</width>
      <height>21</height>
     </rect>
@@ -185,37 +254,24 @@
     <string>degree</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="degree">
+  <widget class="QLineEdit" name="displacement_min">
    <property name="geometry">
     <rect>
-     <x>740</x>
-     <y>610</y>
+     <x>750</x>
+     <y>710</y>
      <width>81</width>
      <height>27</height>
     </rect>
    </property>
    <property name="text">
-    <string>4</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="data_points">
-   <property name="geometry">
-    <rect>
-     <x>740</x>
-     <y>550</y>
-     <width>81</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>1000</string>
+    <string>0</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>550</y>
+     <x>660</x>
+     <y>620</y>
      <width>91</width>
      <height>21</height>
     </rect>
@@ -231,64 +287,11 @@
     <string>data points</string>
    </property>
   </widget>
-  <widget class="QCustomPlot" name="load" native="true">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>30</y>
-     <width>271</width>
-     <height>281</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QCustomPlot" name="adc_value" native="true">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>30</y>
-     <width>271</width>
-     <height>281</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QCustomPlot" name="displacement" native="true">
-   <property name="geometry">
-    <rect>
-     <x>550</x>
-     <y>30</y>
-     <width>271</width>
-     <height>281</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QCustomPlot" name="displacement_force" native="true">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>420</y>
-     <width>301</width>
-     <height>281</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="motor_config_path">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>380</y>
-     <width>821</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>/home/letrend/workspace/roboy_middleware/src/roboy_rqt_plugins/roboy_motor_calibration/config/roboyArm.yaml</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="load_motor_config">
    <property name="geometry">
     <rect>
-     <x>700</x>
-     <y>420</y>
+     <x>710</x>
+     <y>490</y>
      <width>131</width>
      <height>31</height>
     </rect>
@@ -300,109 +303,90 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QFrame" name="frame">
+  <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>630</x>
-     <y>510</y>
-     <width>101</width>
-     <height>31</height>
+     <x>690</x>
+     <y>740</y>
+     <width>61</width>
+     <height>21</height>
     </rect>
    </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
+   <property name="text">
+    <string>dis_min</string>
    </property>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>0</y>
-      <width>41</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>motor</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="motor">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>0</y>
-      <width>41</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>13</number>
-    </property>
-   </widget>
   </widget>
-  <widget class="QFrame" name="frame_2">
+  <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>730</x>
-     <y>510</y>
-     <width>101</width>
+     <x>650</x>
+     <y>580</y>
+     <width>41</width>
      <height>31</height>
     </rect>
    </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
+   <property name="text">
+    <string>motor</string>
    </property>
-   <widget class="QSpinBox" name="fpga">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>0</y>
-      <width>41</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>5</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>0</y>
-      <width>31</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>fpga</string>
-    </property>
-   </widget>
+  </widget>
+  <widget class="QPushButton" name="calibrate">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>380</y>
+     <width>281</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>calibrate</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="degree">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>680</y>
+     <width>81</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>4</string>
+   </property>
+  </widget>
+  <widget class="QCustomPlot" name="force_displacement" native="true">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>490</y>
+     <width>301</width>
+     <height>281</height>
+    </rect>
+   </property>
   </widget>
   <widget class="QPushButton" name="fit_curve">
    <property name="geometry">
     <rect>
-     <x>630</x>
-     <y>470</y>
+     <x>640</x>
+     <y>540</y>
      <width>201</width>
      <height>31</height>
     </rect>
@@ -411,16 +395,175 @@
     <string>estimate spring parameters</string>
    </property>
   </widget>
-  <widget class="QCustomPlot" name="force_displacement" native="true">
+  <widget class="QLineEdit" name="data_points">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>420</y>
+     <x>750</x>
+     <y>620</y>
+     <width>81</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>1000</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>580</y>
+     <width>31</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>fpga</string>
+   </property>
+  </widget>
+  <widget class="QCustomPlot" name="displacement_force" native="true">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>490</y>
      <width>301</width>
      <height>281</height>
     </rect>
    </property>
   </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>650</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>timeout [ms]</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>710</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>dis_min</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="motor_config_path">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>450</y>
+     <width>821</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>/home/letrend/workspace/roboy_middleware/src/roboy_rqt_plugins/roboy_motor_calibration/config/roboyArm.yaml</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="timeout">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>650</y>
+     <width>81</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>500000</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="stop_button_all">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>380</y>
+     <width>511</width>
+     <height>61</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>STOP</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <zorder>tabWidget</zorder>
+  <zorder>label_2</zorder>
+  <zorder>displacement_max</zorder>
+  <zorder>motor</zorder>
+  <zorder>fpga</zorder>
+  <zorder>label_7</zorder>
+  <zorder>displacement_min</zorder>
+  <zorder>label_8</zorder>
+  <zorder>load_motor_config</zorder>
+  <zorder>label_5</zorder>
+  <zorder>label_3</zorder>
+  <zorder>calibrate</zorder>
+  <zorder>degree</zorder>
+  <zorder>force_displacement</zorder>
+  <zorder>fit_curve</zorder>
+  <zorder>data_points</zorder>
+  <zorder>label</zorder>
+  <zorder>displacement_force</zorder>
+  <zorder>label_6</zorder>
+  <zorder>label_4</zorder>
+  <zorder>motor_config_path</zorder>
+  <zorder>timeout</zorder>
+  <zorder>stop_button_all</zorder>
+  <zorder>displacement_max</zorder>
+  <zorder>motor</zorder>
+  <zorder>fpga</zorder>
+  <zorder>label_7</zorder>
+  <zorder>displacement_min</zorder>
+  <zorder>label_8</zorder>
+  <zorder>load_motor_config</zorder>
+  <zorder>label_5</zorder>
+  <zorder>label_3</zorder>
+  <zorder>calibrate</zorder>
+  <zorder>degree</zorder>
+  <zorder>force_displacement</zorder>
+  <zorder>fit_curve</zorder>
+  <zorder>data_points</zorder>
+  <zorder>label</zorder>
+  <zorder>displacement_force</zorder>
+  <zorder>label_6</zorder>
+  <zorder>label_4</zorder>
+  <zorder>motor_config_path</zorder>
+  <zorder>timeout</zorder>
+  <zorder>stop_button_all</zorder>
  </widget>
  <customwidgets>
   <customwidget>

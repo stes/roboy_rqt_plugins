@@ -6,6 +6,7 @@
 #include <rqt_gui_cpp/plugin.h>
 #include <roboy_motor_calibration/ui_roboy_motor_calibration.h>
 #include <roboy_communication_middleware/ADCvalue.h>
+#include <roboy_communication_middleware/MotorAngle.h>
 #include <roboy_communication_middleware/MotorCalibrationService.h>
 #include <roboy_communication_middleware/MotorStatus.h>
 #include <QWidget>
@@ -54,6 +55,7 @@ public Q_SLOTS:
     void fitCurve();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
+    void MotorAngle(const roboy_communication_middleware::MotorAngle::ConstPtr &msg);
     void ADCvalue(const roboy_communication_middleware::ADCvalue::ConstPtr &msg);
     /**
 	 * Performs polynomial regression (http://www.bragitoff.com/2015/09/c-program-for-polynomial-fit-least-squares/)
@@ -75,6 +77,8 @@ private:
                                   vector<double> &displacement,
                                   vector<float> &coefficients_displacement_force,
                                   vector<float> &coefficients_force_displacement);
+
+    void estimateForce(int type);
 Q_SIGNALS:
     void newData();
 
@@ -82,17 +86,28 @@ private:
     Ui::RoboyMotorCalibration ui;
     QWidget *widget_;
     ros::NodeHandlePtr nh;
-    ros::Subscriber motorStatus, loadCells;
+    ros::Subscriber motorStatus, loadCells, motorAngle;
     ros::ServiceClient motorCalibration, emergencyStop;
 private:
     mutex mux;
     boost::shared_ptr<boost::thread> calibration_thread;
-    QVector<double> time, timeMotorData;
+    QVector<double> time;
     int counter = 0, samples_per_plot = 300;
-    QVector<double> motorData, motorDataCalibrated, loadCellLoad, loadCellValue;
+    QVector<double> loadCellLoad, loadCellValue;
+    map<int,QVector<double>> motorData, motorDataCalibrated, timeMotorData;
     map<int,bool> stopButton;
     map<string, QPushButton*> button;
     map<string, QLineEdit*> text;
     QColor color_pallette[14] = {Qt::blue, Qt::red, Qt::green, Qt::cyan, Qt::magenta, Qt::darkGray, Qt::darkRed, Qt::darkGreen,
                                  Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow, Qt::black, Qt::gray};
+    enum{
+        POSITION,
+        DISPLACEMENT,
+        ANGLE
+    };
+
+    enum{
+        MYOMUSLCE,
+        MUSCLEMUSCLE
+    };
 };
