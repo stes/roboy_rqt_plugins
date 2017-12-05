@@ -124,12 +124,12 @@
     <attribute name="title">
      <string>muscleMuscle</string>
     </attribute>
-    <widget class="QCustomPlot" name="motorPosition" native="true">
+    <widget class="QCustomPlot" name="motorAngle" native="true">
      <property name="geometry">
       <rect>
-       <x>550</x>
+       <x>420</x>
        <y>10</y>
-       <width>271</width>
+       <width>211</width>
        <height>281</height>
       </rect>
      </property>
@@ -143,16 +143,16 @@
        </rect>
       </property>
       <property name="text">
-       <string>motorPosition</string>
+       <string>motorAngle</string>
       </property>
      </widget>
     </widget>
-    <widget class="QCustomPlot" name="motorAngle" native="true">
+    <widget class="QCustomPlot" name="winchAngle" native="true">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>210</x>
        <y>10</y>
-       <width>271</width>
+       <width>211</width>
        <height>281</height>
       </rect>
      </property>
@@ -166,16 +166,16 @@
        </rect>
       </property>
       <property name="text">
-       <string>motorAngle</string>
+       <string>winchAngle</string>
       </property>
      </widget>
     </widget>
     <widget class="QCustomPlot" name="load_2" native="true">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>0</x>
        <y>10</y>
-       <width>271</width>
+       <width>211</width>
        <height>281</height>
       </rect>
      </property>
@@ -190,6 +190,29 @@
       </property>
       <property name="text">
        <string>load</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QCustomPlot" name="springAngle" native="true">
+     <property name="geometry">
+      <rect>
+       <x>630</x>
+       <y>10</y>
+       <width>211</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <widget class="QLabel" name="label_18">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>springAngle</string>
       </property>
      </widget>
     </widget>
@@ -522,27 +545,6 @@
   </widget>
   <zorder>tabWidget</zorder>
   <zorder>label_2</zorder>
-  <zorder>displacement_max</zorder>
-  <zorder>motor</zorder>
-  <zorder>fpga</zorder>
-  <zorder>label_7</zorder>
-  <zorder>displacement_min</zorder>
-  <zorder>label_8</zorder>
-  <zorder>load_motor_config</zorder>
-  <zorder>label_5</zorder>
-  <zorder>label_3</zorder>
-  <zorder>calibrate</zorder>
-  <zorder>degree</zorder>
-  <zorder>force_displacement</zorder>
-  <zorder>fit_curve</zorder>
-  <zorder>data_points</zorder>
-  <zorder>label</zorder>
-  <zorder>displacement_force</zorder>
-  <zorder>label_6</zorder>
-  <zorder>label_4</zorder>
-  <zorder>motor_config_path</zorder>
-  <zorder>timeout</zorder>
-  <zorder>stop_button_all</zorder>
   <zorder>displacement_max</zorder>
   <zorder>motor</zorder>
   <zorder>fpga</zorder>

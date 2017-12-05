@@ -87,22 +87,26 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
 
     ui.load_2->xAxis->setLabel("x");
     ui.load_2->yAxis->setLabel("Newton");
-    ui.load_2->yAxis->setRange(0, 100);
+    ui.load_2->yAxis->setRange(0, 300);
     ui.load_2->replot();
+
+    ui.winchAngle->addGraph();
+    ui.winchAngle->graph(0)->setPen(QPen(color_pallette[1]));
+    ui.winchAngle->xAxis->setLabel("x");
+    ui.winchAngle->yAxis->setLabel("winch [degree]");
+    ui.winchAngle->replot();
 
     ui.motorAngle->addGraph();
     ui.motorAngle->graph(0)->setPen(QPen(color_pallette[1]));
-
     ui.motorAngle->xAxis->setLabel("x");
-    ui.motorAngle->yAxis->setLabel("motor angle [degree]");
-    ui.motorAngle->yAxis->setRange(0, 360);
+    ui.motorAngle->yAxis->setLabel("motor [degree]");
     ui.motorAngle->replot();
 
-    ui.motorPosition->addGraph();
-    ui.motorPosition->graph(0)->setPen(QPen(color_pallette[2]));
-    ui.motorPosition->xAxis->setLabel("x");
-    ui.motorPosition->yAxis->setLabel("motor position [degree]");
-    ui.motorPosition->replot();
+    ui.springAngle->addGraph();
+    ui.springAngle->graph(0)->setPen(QPen(color_pallette[2]));
+    ui.springAngle->xAxis->setLabel("x");
+    ui.springAngle->yAxis->setLabel("spring [degree]");
+    ui.springAngle->replot();
 
     // estimated curva
     ui.displacement_force->addGraph();
@@ -129,6 +133,7 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     for(uint i=0;i<NUMBER_OF_MOTORS_PER_FPGA;i++){
         coeffs_displacement2force[i] = {0,0,0,0,0};
         coeffs_force2displacement[i] = {0,0,0,0,0};
+        rotationCounter[i] = 0;
     }
     loadConfig();
 
@@ -218,9 +223,26 @@ void RoboyMotorCalibration::MotorAngle(const roboy_communication_middleware::Mot
     lock_guard<mutex> lock(mux);
     ROS_INFO_THROTTLE(5, "receiving motor angle");
     timeMotorData[ANGLE].push_back(counter++);
+
+    if(motorData[ANGLE].back()>350 && msg->angles[ui.motor->value()] <10){ // increase rotation counter
+        rotationCounter[ui.motor->value()]++;
+    }else if(motorData[ANGLE].back()<10 && msg->angles[ui.motor->value()] > 350){ // decrease rotation counter
+        rotationCounter[ui.motor->value()]--;
+    }
+
     motorData[ANGLE].push_back(msg->angles[ui.motor->value()]);
     if (motorData[ANGLE].size() > samples_per_plot) {
         motorData[ANGLE].pop_front();
+    }
+
+    motorData[ANGLEABSOLUT].push_back(msg->angles[ui.motor->value()]+rotationCounter[ui.motor->value()]*360.0f);
+    if (motorData[ANGLEABSOLUT].size() > samples_per_plot) {
+        motorData[ANGLEABSOLUT].pop_front();
+    }
+
+    motorData[SPRING].push_back(motorData[POSITION].back()-motorData[ANGLE].back());
+    if (motorData[SPRING].size() > samples_per_plot) {
+        motorData[SPRING].pop_front();
     }
 
     if (timeMotorData[ANGLE].size() > samples_per_plot)
@@ -395,16 +417,19 @@ void RoboyMotorCalibration::plotData() {
 //            ui.load_2->graph(1)->setData(time, motorDataCalibrated);
             ui.load_2->xAxis->rescale();
 
-            ui.motorAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[ANGLE]);
-            ui.motorAngle->xAxis->rescale();
-//            ui.motorAngle->graph(0)->rescaleAxes();
+            ui.winchAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[ANGLE]);
+            ui.winchAngle->graph(0)->rescaleAxes();
 
-            ui.motorPosition->graph(0)->setData(timeMotorData[POSITION], motorData[POSITION]);
-            ui.motorPosition->graph(0)->rescaleAxes();
+            ui.motorAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[POSITION]);
+            ui.motorAngle->graph(0)->rescaleAxes();
+
+            ui.springAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[SPRING]);
+            ui.springAngle->graph(0)->rescaleAxes();
 
             ui.load_2->replot();
+            ui.winchAngle->replot();
             ui.motorAngle->replot();
-            ui.motorPosition->replot();
+            ui.springAngle->replot();
             break;
         }
     }

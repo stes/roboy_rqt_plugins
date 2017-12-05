@@ -95,6 +95,7 @@ private:
     int counter = 0, samples_per_plot = 300;
     QVector<double> loadCellLoad, loadCellValue;
     map<int,QVector<double>> motorData, motorDataCalibrated, timeMotorData;
+    map<int,int> rotationCounter;
     map<int,bool> stopButton;
     map<string, QPushButton*> button;
     map<string, QLineEdit*> text;
@@ -103,7 +104,9 @@ private:
     enum{
         POSITION,
         DISPLACEMENT,
-        ANGLE
+        ANGLE,
+        ANGLEABSOLUT,
+        SPRING
     };
 
     enum{
