@@ -4,6 +4,7 @@ project( roboy_motor_command)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O0 -g")
 
 find_package(catkin REQUIRED COMPONENTS common_utilities roscpp roslint rqt_gui rqt_gui_cpp std_msgs roboy_communication_middleware )
+FIND_PACKAGE(yaml-cpp REQUIRED)
 
 include_directories( include qcustomplot)
 
@@ -21,7 +22,8 @@ catkin_python_setup()
 roslint_cpp()
 
 catkin_package( INCLUDE_DIRS include LIBRARIES ${PROJECT_NAME}
-        CATKIN_DEPENDS roscpp rqt_gui_cpp std_msgs roboy_communication_middleware common_utilities)
+        CATKIN_DEPENDS roscpp rqt_gui_cpp std_msgs roboy_communication_middleware common_utilities 
+        DEPENDS YAML_CPP)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   qt5_wrap_cpp(roboy_motor_command_MOCS include/roboy_motor_command/roboy_motor_command.hpp qcustomplot/qcustomplot.h)
@@ -34,6 +36,7 @@ endif()
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}/..
   ${catkin_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIR}
 )
 
 add_library( roboy_motor_command src/roboy_motor_command.cpp ${roboy_motor_command_MOCS} ${roboy_motor_command_UIS_H}
@@ -46,6 +49,7 @@ target_link_libraries(roboy_motor_command ${catkin_LIBRARIES} )
 add_executable( speed_test src/speed_test.cpp)
 add_dependencies(speed_test roboy_communication_middleware_gencpp)
 target_link_libraries(speed_test ${catkin_LIBRARIES} )
+target_link_libraries(roboy_motor_command ${YAML_CPP_LIBRARIES} -ldl)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   target_link_libraries(roboy_motor_command Qt5::Widgets)
