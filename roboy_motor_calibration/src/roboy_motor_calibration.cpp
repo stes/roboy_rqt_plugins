@@ -30,16 +30,16 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     text["data_points"] = widget_->findChild<QLineEdit *>("data_points");
     text["timeout"] = widget_->findChild<QLineEdit *>("timeout");
     text["degree"] = widget_->findChild<QLineEdit *>("degree");
-    text["displacement_min"] = widget_->findChild<QLineEdit *>("displacement_min");
-    text["displacement_max"] = widget_->findChild<QLineEdit *>("displacement_max");
+    text["setpoint_min"] = widget_->findChild<QLineEdit *>("setpoint_min");
+    text["setpoint_max"] = widget_->findChild<QLineEdit *>("setpoint_max");
     text["motor_config_path"] = widget_->findChild<QLineEdit *>("motor_config_path");
 
     text["data_points"]->setToolTip("amount of samples to use for regression");
     text["timeout"]->setToolTip("the calibration will be timed out\n"
                                         "if the number of samples was not reached");
     text["degree"]->setToolTip("degree of the polynomial regression");
-    text["displacement_min"]->setToolTip("minimal/maximal displacment to be sampled from");
-    text["displacement_max"]->setToolTip("minimal/maximal displacment to be sampled from");
+    text["setpoint_min"]->setToolTip("minimal/maximal setpoint to be sampled from");
+    text["setpoint_max"]->setToolTip("minimal/maximal setpoint to be sampled from");
 
     nh = ros::NodeHandlePtr(new ros::NodeHandle);
     if (!ros::isInitialized()) {
@@ -53,6 +53,9 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     QObject::connect(button["calibrate"], SIGNAL(clicked()), this, SLOT(MotorCalibration()));
     QObject::connect(button["load_config"], SIGNAL(clicked()), this, SLOT(loadConfig()));
     QObject::connect(button["fit_curve"], SIGNAL(clicked()), this, SLOT(fitCurve()));
+
+    QObject::connect(ui.winchAngle_zero, SIGNAL(clicked()), this, SLOT(winchAngleZero()));
+    QObject::connect(ui.motorAngle_zero, SIGNAL(clicked()), this, SLOT(motorAngleZero()));
 
     // myoMuscle TAB
     ui.load->addGraph();
@@ -141,6 +144,9 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     motorAngle = nh->subscribe("/roboy/middleware/MotorAngle", 1, &RoboyMotorCalibration::MotorAngle, this);
     loadCells = nh->subscribe("/roboy/middleware/LoadCells", 1, &RoboyMotorCalibration::ADCvalue, this);
     motorCalibration = nh->serviceClient<roboy_communication_middleware::MotorCalibrationService>("/roboy/middleware/MotorCalibration");
+
+    offset[POSITION] = 0;
+    offset[ANGLEABSOLUT] = 0;
 }
 
 void RoboyMotorCalibration::shutdownPlugin() {
@@ -173,22 +179,32 @@ void RoboyMotorCalibration::stopButtonAllClicked(){
 }
 
 void RoboyMotorCalibration::MotorCalibration(){
-    ROS_INFO("starting motor calibration");
     if(button["calibrate"]->isChecked()){
-        roboy_communication_middleware::MotorCalibrationService msg;
-        msg.request.fpga = ui.fpga->value();
-        msg.request.motor = ui.motor->value();
-        msg.request.degree = text["degree"]->text().toInt();
-        msg.request.numberOfDataPoints = text["data_points"]->text().toInt();
-        msg.request.timeout = text["timeout"]->text().toInt();
-        msg.request.displacement_min = text["displacement_min"]->text().toInt();
-        msg.request.displacement_max = text["displacement_max"]->text().toInt();
-        motorCalibration.call(msg);
-        estimateSpringParameters(msg.response.load, msg.response.displacement,
-                                 coeffs_displacement2force[msg.request.motor],
-                                 coeffs_force2displacement[msg.request.motor]);
+        switch(ui.tabWidget->currentIndex()){
+            case 0: {
+                ROS_INFO("starting motor calibration for myoMuscle");
+                roboy_communication_middleware::MotorCalibrationService msg;
+                msg.request.fpga = ui.fpga->value();
+                msg.request.motor = ui.motor->value();
+                msg.request.degree = text["degree"]->text().toInt();
+                msg.request.numberOfDataPoints = text["data_points"]->text().toInt();
+                msg.request.timeout = text["timeout"]->text().toInt();
+                msg.request.displacement_min = text["setpoint_min"]->text().toInt();
+                msg.request.displacement_max = text["setpoint_max"]->text().toInt();
+                motorCalibration.call(msg);
+                estimateSpringParameters(msg.response.load, msg.response.displacement,
+                                         coeffs_displacement2force[msg.request.motor],
+                                         coeffs_force2displacement[msg.request.motor]);
 
-        writeConfig(text["motor_config_path"]->text().toStdString());
+                writeConfig(text["motor_config_path"]->text().toStdString());
+                break;
+            }
+            case 1:{
+                ROS_INFO("starting motor calibration for myoBrick");
+
+            }
+        }
+
     }
 }
 
@@ -199,6 +215,11 @@ void RoboyMotorCalibration::MotorStatus(const roboy_communication_middleware::Mo
     motorData[POSITION].push_back(msg->position[ui.motor->value()]/1024.0f/62.0f*360.0f); // 1024 ticks per turn / gear box ratio * 360 degrees
     if (motorData[POSITION].size() > samples_per_plot) {
         motorData[POSITION].pop_front();
+    }
+
+    motorData[POSITIONABSOLUT].push_back(motorData[POSITION].back()+offset[POSITION]);
+    if (motorData[POSITIONABSOLUT].size() > samples_per_plot) {
+        motorData[POSITIONABSOLUT].pop_front();
     }
 
     timeMotorData[DISPLACEMENT].push_back(counter);
@@ -224,9 +245,10 @@ void RoboyMotorCalibration::MotorAngle(const roboy_communication_middleware::Mot
     ROS_INFO_THROTTLE(5, "receiving motor angle");
     timeMotorData[ANGLE].push_back(counter++);
 
-    if(motorData[ANGLE].back()>350 && msg->angles[ui.motor->value()] <10){ // increase rotation counter
+    if(motorData[ANGLE].back()>340 && msg->angles[ui.motor->value()] <20){ // increase rotation counter
         rotationCounter[ui.motor->value()]++;
-    }else if(motorData[ANGLE].back()<10 && msg->angles[ui.motor->value()] > 350){ // decrease rotation counter
+    }
+    if(motorData[ANGLE].back()<20 && msg->angles[ui.motor->value()] > 340){ // decrease rotation counter
         rotationCounter[ui.motor->value()]--;
     }
 
@@ -235,12 +257,12 @@ void RoboyMotorCalibration::MotorAngle(const roboy_communication_middleware::Mot
         motorData[ANGLE].pop_front();
     }
 
-    motorData[ANGLEABSOLUT].push_back(msg->angles[ui.motor->value()]+rotationCounter[ui.motor->value()]*360.0f);
+    motorData[ANGLEABSOLUT].push_back(msg->angles[ui.motor->value()]+rotationCounter[ui.motor->value()]*360.0f+offset[ANGLE]);
     if (motorData[ANGLEABSOLUT].size() > samples_per_plot) {
         motorData[ANGLEABSOLUT].pop_front();
     }
 
-    motorData[SPRING].push_back(motorData[POSITION].back()-motorData[ANGLE].back());
+    motorData[SPRING].push_back(motorData[POSITIONABSOLUT].back()-motorData[ANGLEABSOLUT].back());
     if (motorData[SPRING].size() > samples_per_plot) {
         motorData[SPRING].pop_front();
     }
@@ -417,10 +439,10 @@ void RoboyMotorCalibration::plotData() {
 //            ui.load_2->graph(1)->setData(time, motorDataCalibrated);
             ui.load_2->xAxis->rescale();
 
-            ui.winchAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[ANGLE]);
+            ui.winchAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[ANGLEABSOLUT]);
             ui.winchAngle->graph(0)->rescaleAxes();
 
-            ui.motorAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[POSITION]);
+            ui.motorAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[POSITIONABSOLUT]);
             ui.motorAngle->graph(0)->rescaleAxes();
 
             ui.springAngle->graph(0)->setData(timeMotorData[ANGLE], motorData[SPRING]);
@@ -494,6 +516,15 @@ void RoboyMotorCalibration::fitCurve(){
                                  coeffs_force2displacement[ui.motor->value()]);
         writeConfig(text["motor_config_path"]->text().toStdString());
     }
+}
+
+void RoboyMotorCalibration::winchAngleZero(){
+    offset[ANGLE] = -motorData[ANGLE].back();
+    rotationCounter[ui.motor->value()] = 0;
+}
+
+void RoboyMotorCalibration::motorAngleZero(){
+    offset[POSITION] = -motorData[POSITION].back();
 }
 
 PLUGINLIB_DECLARE_CLASS(roboy_motor_calibration, RoboyMotorCalibration, RoboyMotorCalibration, rqt_gui_cpp::Plugin)

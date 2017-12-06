@@ -53,6 +53,8 @@ public Q_SLOTS:
     void plotData();
     void loadConfig();
     void fitCurve();
+    void winchAngleZero();
+    void motorAngleZero();
 private:
     void MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg);
     void MotorAngle(const roboy_communication_middleware::MotorAngle::ConstPtr &msg);
@@ -95,6 +97,7 @@ private:
     int counter = 0, samples_per_plot = 300;
     QVector<double> loadCellLoad, loadCellValue;
     map<int,QVector<double>> motorData, motorDataCalibrated, timeMotorData;
+    map<int,double> offset;
     map<int,int> rotationCounter;
     map<int,bool> stopButton;
     map<string, QPushButton*> button;
@@ -102,10 +105,11 @@ private:
     QColor color_pallette[14] = {Qt::blue, Qt::red, Qt::green, Qt::cyan, Qt::magenta, Qt::darkGray, Qt::darkRed, Qt::darkGreen,
                                  Qt::darkBlue, Qt::darkCyan, Qt::darkMagenta, Qt::darkYellow, Qt::black, Qt::gray};
     enum{
-        POSITION,
+        POSITION, // this is the raw motor angle
+        POSITIONABSOLUT, // this is the motor angle with applied offset
         DISPLACEMENT,
-        ANGLE,
-        ANGLEABSOLUT,
+        ANGLE, // this is the winch angle
+        ANGLEABSOLUT, // this is the winch angle with applied offset
         SPRING
     };
 
