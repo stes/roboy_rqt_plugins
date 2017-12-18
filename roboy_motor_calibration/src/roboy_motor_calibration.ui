@@ -544,7 +544,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>/home/letrend/workspace/roboy_middleware/src/roboy_rqt_plugins/roboy_motor_calibration/config/roboyArm.yaml</string>
+    <string>/home/roboy/workspace/roboy_middleware/src/roboy_rqt_plugins/roboy_motor_calibration/config/roboyArm.yaml</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="timeout">

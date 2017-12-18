@@ -8,6 +8,7 @@
 #include <roboy_communication_middleware/ADCvalue.h>
 #include <roboy_communication_middleware/MotorAngle.h>
 #include <roboy_communication_middleware/MotorCalibrationService.h>
+#include <roboy_communication_middleware/MotorCommand.h>
 #include <roboy_communication_middleware/MotorStatus.h>
 #include <QWidget>
 #include <pluginlib/class_list_macros.h>
@@ -25,12 +26,14 @@
 #include <QFileInfo>
 #include <fstream>
 #include <stdlib.h>
+#include <chrono>
 
 #endif
 
 #define NUMBER_OF_FPGAS 6
 
 using namespace std;
+using namespace chrono;
 
 class RoboyMotorCalibration
         : public rqt_gui_cpp::Plugin, MotorConfig {
@@ -80,7 +83,7 @@ private:
                                   vector<float> &coefficients_displacement_force,
                                   vector<float> &coefficients_force_displacement);
 
-    void estimateForce(int type);
+    void estimateMyoBrickSpringParameters();
 Q_SIGNALS:
     void newData();
 
@@ -89,6 +92,7 @@ private:
     QWidget *widget_;
     ros::NodeHandlePtr nh;
     ros::Subscriber motorStatus, loadCells, motorAngle;
+    ros::Publisher motorCommand;
     ros::ServiceClient motorCalibration, emergencyStop;
 private:
     mutex mux;

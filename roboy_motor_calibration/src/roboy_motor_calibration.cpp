@@ -118,7 +118,6 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     ui.displacement_force->graph(0)->setPen(QPen(color_pallette[0]));
     ui.displacement_force->addGraph();
     ui.displacement_force->graph(1)->setPen(QPen(color_pallette[1]));
-    ui.displacement_force->xAxis->setLabel("displacement[ticks]");
     ui.displacement_force->yAxis->setLabel("force[N]");
 
     ui.force_displacement->addGraph();
@@ -128,7 +127,6 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     ui.force_displacement->addGraph();
     ui.force_displacement->graph(1)->setPen(QPen(color_pallette[1]));
     ui.force_displacement->xAxis->setLabel("force[N]");
-    ui.force_displacement->yAxis->setLabel("displacement[ticks]");
 
 
     QObject::connect(this, SIGNAL(newData()), this, SLOT(plotData()));
@@ -144,6 +142,7 @@ void RoboyMotorCalibration::initPlugin(qt_gui_cpp::PluginContext &context) {
     motorAngle = nh->subscribe("/roboy/middleware/MotorAngle", 1, &RoboyMotorCalibration::MotorAngle, this);
     loadCells = nh->subscribe("/roboy/middleware/LoadCells", 1, &RoboyMotorCalibration::ADCvalue, this);
     motorCalibration = nh->serviceClient<roboy_communication_middleware::MotorCalibrationService>("/roboy/middleware/MotorCalibration");
+    motorCommand = nh->advertise<roboy_communication_middleware::MotorCommand>("/roboy/middleware/MotorCommand", 1);
 
     offset[POSITION] = 0;
     offset[ANGLEABSOLUT] = 0;
@@ -183,6 +182,8 @@ void RoboyMotorCalibration::MotorCalibration(){
         switch(ui.tabWidget->currentIndex()){
             case 0: {
                 ROS_INFO("starting motor calibration for myoMuscle");
+                ui.displacement_force->xAxis->setLabel("displacement[ticks]");
+                ui.force_displacement->yAxis->setLabel("displacement[ticks]");
                 roboy_communication_middleware::MotorCalibrationService msg;
                 msg.request.fpga = ui.fpga->value();
                 msg.request.motor = ui.motor->value();
@@ -201,7 +202,10 @@ void RoboyMotorCalibration::MotorCalibration(){
             }
             case 1:{
                 ROS_INFO("starting motor calibration for myoBrick");
-
+                ui.displacement_force->xAxis->setLabel("displacement[degree]");
+                ui.force_displacement->yAxis->setLabel("displacement[degree]");
+                calibration_thread.reset(new boost::thread(&RoboyMotorCalibration::estimateMyoBrickSpringParameters, this));
+                calibration_thread->detach();
             }
         }
 
@@ -245,19 +249,19 @@ void RoboyMotorCalibration::MotorAngle(const roboy_communication_middleware::Mot
     ROS_INFO_THROTTLE(5, "receiving motor angle");
     timeMotorData[ANGLE].push_back(counter++);
 
-    if(motorData[ANGLE].back()>340 && msg->angles[ui.motor->value()] <20){ // increase rotation counter
-        rotationCounter[ui.motor->value()]++;
+    if(motorData[ANGLE].back()>340 && msg->angles[0] <20){ // increase rotation counter
+        rotationCounter[0]++;
     }
-    if(motorData[ANGLE].back()<20 && msg->angles[ui.motor->value()] > 340){ // decrease rotation counter
-        rotationCounter[ui.motor->value()]--;
+    if(motorData[ANGLE].back()<20 && msg->angles[0] > 340){ // decrease rotation counter
+        rotationCounter[0]--;
     }
 
-    motorData[ANGLE].push_back(msg->angles[ui.motor->value()]);
+    motorData[ANGLE].push_back(msg->angles[0]);
     if (motorData[ANGLE].size() > samples_per_plot) {
         motorData[ANGLE].pop_front();
     }
 
-    motorData[ANGLEABSOLUT].push_back(msg->angles[ui.motor->value()]+rotationCounter[ui.motor->value()]*360.0f+offset[ANGLE]);
+    motorData[ANGLEABSOLUT].push_back(msg->angles[0]+rotationCounter[0]*360.0f+offset[ANGLE]);
     if (motorData[ANGLEABSOLUT].size() > samples_per_plot) {
         motorData[ANGLEABSOLUT].pop_front();
     }
@@ -397,6 +401,102 @@ void RoboyMotorCalibration::estimateSpringParameters(vector<double> &force,
     ui.force_displacement->replot();
 }
 
+void RoboyMotorCalibration::estimateMyoBrickSpringParameters(){
+    milliseconds ms_start = duration_cast<milliseconds>(system_clock::now().time_since_epoch()), ms_stop, t0, t1;
+    ofstream outfile;
+    char str[100];
+    sprintf(str, "springParameters_calibration_motor%d.csv", ui.motor->value());
+    outfile.open(str);
+    if (!outfile.is_open()) {
+        cout << "could not open file " << str << " for writing, aborting!" << endl;
+        return;
+    }
+    outfile << "springAngle[degree], load[N]" << endl;
+    float setpoint_max = ui.setpoint_max->text().toFloat(), setpoint_min = ui.setpoint_min->text().toFloat();
+    int timeout = ui.timeout->text().toInt(), degree = ui.degree->text().toInt(), numberOfDataPoints = ui.data_points->text().toInt();
+    roboy_communication_middleware::MotorCommand msg;
+    msg.motors.push_back(ui.motor->value());
+
+    vector<double> x, y;
+
+    do {
+        float f = (rand() / (float) RAND_MAX) * (setpoint_max - setpoint_min) + setpoint_min;
+        msg.setPoints.clear();
+        msg.setPoints.push_back(f);
+        motorCommand.publish(msg);
+        t0 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+        do {// wait a bit until force is applied
+            // update control
+            t1 = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+        } while ((t1 - t0).count() < 2000);
+
+        x.push_back(motorData[SPRING].back());
+        y.push_back(loadCellLoad.back());
+
+        outfile <<  x.back() << ", " << y.back() << endl;
+        ms_stop = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+        cout << "setPoint: \t" << f << "\tmotorSpring:\t" << x.back() << "\tload:\t" << y.back() << endl;
+    } while ((ms_stop - ms_start).count() < timeout && x.size() < numberOfDataPoints);
+
+    vector<float> coefficients_displacement_force, coefficients_force_displacement;
+    polynomialRegression(degree, x, y, coefficients_displacement_force);
+    // coefficients_displacement_force
+    outfile << "regression coefficients_displacement_force for polynomial of "<< degree << " degree:" << endl;
+    cout << "regression coefficients_displacement_force for polynomial of "<< degree << " degree:" << endl;
+    for(float coef:coefficients_displacement_force){
+        outfile << coef << "\t";
+        cout << coef << "\t";
+    }
+    outfile << endl;
+    cout << endl;
+    // coefficients_force_displacement
+    polynomialRegression(degree, y, x, coefficients_force_displacement);
+    outfile << "regression coefficients_displacement_force for polynomial of "<< degree << " degree:" << endl;
+    cout << "regression coefficients_displacement_force for polynomial of "<< degree << " degree:" << endl;
+    for(float coef:coefficients_displacement_force){
+        outfile << coef << "\t";
+        cout << coef << "\t";
+    }
+    outfile << endl;
+    cout << endl;
+
+//	polyPar[motor] = coeffs;
+    outfile.close();
+
+    QVector<double> dis = QVector<double>::fromStdVector( x );
+    QVector<double> load = QVector<double>::fromStdVector( y );
+
+    ui.displacement_force->graph(0)->setData(dis, load);
+
+    QVector<double> load_graph;
+    for(uint i=0;i<x.size();i++){
+        double val = coefficients_displacement_force[0];
+        for(uint j=1;j<coefficients_displacement_force.size();j++){
+            val += coefficients_displacement_force[j]*pow(dis[i],(double)j);
+        }
+        load_graph.push_back(val);
+    }
+
+    ui.displacement_force->graph(1)->setData(dis, load_graph);
+    ui.displacement_force->graph(1)->rescaleAxes();
+    ui.displacement_force->replot();
+
+    ui.force_displacement->graph(0)->setData( load, dis );
+
+    QVector<double> displacement_graph;
+    for(uint i=0;i<x.size();i++){
+        double val = coefficients_force_displacement[0];
+        for(uint j=1;j<coefficients_force_displacement.size();j++){
+            val += coefficients_force_displacement[j]*pow(y[i],(double)j);
+        }
+        displacement_graph.push_back(val);
+    }
+
+    ui.force_displacement->graph(1)->setData(load, displacement_graph);
+    ui.force_displacement->graph(1)->rescaleAxes();
+    ui.force_displacement->replot();
+}
+
 void RoboyMotorCalibration::plotData() {
     lock_guard<mutex> lock(mux);
     switch(ui.tabWidget->currentIndex()){
@@ -520,7 +620,7 @@ void RoboyMotorCalibration::fitCurve(){
 
 void RoboyMotorCalibration::winchAngleZero(){
     offset[ANGLE] = -motorData[ANGLE].back();
-    rotationCounter[ui.motor->value()] = 0;
+    rotationCounter[0] = 0;
 }
 
 void RoboyMotorCalibration::motorAngleZero(){
