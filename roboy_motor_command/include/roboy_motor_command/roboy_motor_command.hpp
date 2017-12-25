@@ -8,18 +8,21 @@
 #include <roboy_communication_middleware/ControlMode.h>
 #include <roboy_communication_middleware/MotorCommand.h>
 #include <QWidget>
+#include <QtQuick/QQuickView>
 #include <pluginlib/class_list_macros.h>
 #include <QStringList>
 #include <QSlider>
 #include <QLineEdit>
+#include <QScrollArea>
+#include <QRadioButton>
+#include <QVBoxLayout>
+#include <QLabel>
 #include <map>
 #include <common_utilities/CommonDefinitions.h>
 #include <common_utilities/MotorConfig.hpp>
 #include <std_srvs/SetBool.h>
 
 #endif
-
-#define NUMBER_OF_FPGAS 6
 
 using namespace std;
 
@@ -40,11 +43,10 @@ public:
                                  const qt_gui_cpp::Settings &instance_settings);
 public Q_SLOTS:
     void stopButtonAllClicked();
-    void setPointChanged(int);
-    void setPointAllChanged(int);
-    void fpgaChanged(int);
-    void scaleChanged();
-    void scaleChangedAll();
+    void setPointChanged();
+    void setPointChangedSlider();
+    void setPointAllChanged();
+    void setPointAllChangedSlider();
     void controlModeChanged();
     void loadMotorConfig();
 private:
@@ -54,14 +56,12 @@ private:
     ros::Publisher motorCommand;
     ros::ServiceClient motorControl, emergencyStop;
 private:
-    map<int,bool> stopButton;
-    map<int,map<int,int>> scale;
-    map<int,map<int,int>> setpoint;
-    map<int,int> control_mode;
-    QList<QSlider*> setpoint_slider_widget;
-    QList<QLineEdit*> setpoint_widget;
-    QList<QLineEdit*> scale_widget;
-    enum MOTOR{ MOTOR0, MOTOR1, MOTOR2, MOTOR3, MOTOR4, MOTOR5, MOTOR6, MOTOR7,
-        MOTOR8, MOTOR9, MOTOR10, MOTOR11, MOTOR12, MOTOR13, MOTORALL};
-    enum CONTROL_MODE{POSITION, VELOCITY, DISPLACEMENT, FORCE};
+    bool stopButton;
+    vector<double> setpoint;
+    vector<int> control_mode;
+    int total_number_of_motors = 0, number_of_fpgas = 1;
+    vector<QRadioButton*> pos, vel, dis, force;
+    vector<QSlider*> setpoint_slider_widget;
+    vector<QLineEdit*> setpoint_widget;
+    QLineEdit* scale;
 };
