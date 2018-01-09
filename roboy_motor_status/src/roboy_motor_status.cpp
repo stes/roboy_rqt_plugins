@@ -67,9 +67,9 @@ void RoboyMotorStatus::restoreSettings(const qt_gui_cpp::Settings &plugin_settin
 }
 
 void RoboyMotorStatus::MotorStatus(const roboy_communication_middleware::MotorStatus::ConstPtr &msg) {
-    ROS_INFO_THROTTLE(5, "receiving motor status");
+    ROS_DEBUG_THROTTLE(5, "receiving motor status");
     time.push_back(counter++);
-    for (uint motor = 0; motor < NUMBER_OF_MOTORS_PER_FPGA; motor++) {
+    for (uint motor = 0; motor < msg->position.size(); motor++) {
         motorData[msg->id][motor][0].push_back(msg->position[motor]);
         motorData[msg->id][motor][1].push_back(msg->velocity[motor]);
         motorData[msg->id][motor][2].push_back(msg->displacement[motor]);
