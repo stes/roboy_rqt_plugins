@@ -95,7 +95,7 @@ void RoboyMotorStatus::plotData() {
         ui.displacement_plot->graph(motor)->setData(time, motorData[ui.fpga->value()][motor][2]);
         ui.current_plot->graph(motor)->setData(time, motorData[ui.fpga->value()][motor][3]);
 
-        if (motor == 0) {
+        if (motor == 3) {
             ui.position_plot->graph(motor)->rescaleAxes();
             ui.velocity_plot->graph(motor)->rescaleAxes();
             ui.displacement_plot->graph(motor)->rescaleAxes();
